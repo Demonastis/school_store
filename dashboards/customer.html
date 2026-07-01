@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Portal - School Supplies Store</title>
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --bg-navbar: #ffffff;
+            --primary: #db2777;
+            --primary-hover: #be185d;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Navigation Bar */
+        navbar {
+            background-color: var(--bg-navbar);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a.active, .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .cart-icon {
+            font-size: 1.25rem;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--primary);
+            color: #ffffff;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Context Window */
+        main {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            flex-grow: 1;
+        }
+
+        .welcome-strip {
+            margin-bottom: 32px;
+        }
+
+        .welcome-strip h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .welcome-strip p {
+            color: var(--text-muted);
+        }
+
+        /* Section Split Layout */
+        .portal-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+        }
+
+        @media (max-width: 900px) {
+            .portal-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Product Showcase Grid */
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .product-img-mock {
+            height: 140px;
+            background-color: #f1f5f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+
+        .product-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .product-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .price {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+        }
+
+        .btn-sm {
+            background-color: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-sm:hover { background-color: var(--primary-hover); }
+
+        /* Order Tracker Components */
+        .panel {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .track-card {
+            border-left: 3px solid var(--primary);
+            background-color: #fff5f7;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 16px;
+        }
+
+        .track-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .badge.warning { background-color: #fef3c7; color: #b45309; }
+        .badge.success { background-color: #d1fae5; color: #065f46; }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        .history-item:last-child { border-bottom: none; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Customer Global Navbar -->
+    <navbar>
+        <div class="brand">🎒 Campus<span>Supplies</span></div>
+        <ul class="nav-links">
+            <li><a href="#shop" class="active">Browse Products</a></li>
+            <li><a href="#orders">My Orders</a></li>
+            <li><a href="#history">Purchase History</a></li>
+        </ul>
+        <div class="user-actions">
+            <div class="cart-icon">🛒<div class="cart-count">2</div></div>
+            <div style="font-weight: 600; font-size: 0.9rem;">Hi, Alice!</div>
+        </div>
+    </navbar>
+
+    <!-- App Window Frame Workspace -->
+    <main>
+        <div class="welcome-strip">
+            <h2>Welcome Back, Alice!</h2>
+            <p>Find and track all your school essentials for the upcoming school term.</p>
+        </div>
+
+        <div class="portal-grid">
+            <!-- Left Panel: Shopping Catalog Showcase -->
+            <div>
+                <div class="section-title">
+                    <h3>Available Products</h3>
+                </div>
+                <div class="products-grid">
+                    <!-- Card 1 -->
+                    <div class="product-card">
+                        <div class="product-img-mock">📓</div>
+                        <div class="product-title">A4 College Notebook</div>
+                        <div class="product-meta">80 Leaves • Rules</div>
+                        <div class="product-footer">
+                            <span class="price">₱45.00</span>
+                            <button class="btn-sm">Add to Cart</button>
+                        </div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="product-card">
+                        <div class="product-img-mock">✏️</div>
+                        <div class="product-title">HB Graphite Pencils</div>
+                        <div class="product-meta">Pack of 12</div>
+                        <div class="product-footer">
+                            <span class="price">₱120.00</span>
+                            <button class="btn-sm">Add to Cart</button>
+                        </div>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="product-card">
+                        <div class="product-img-mock">📐</div>
+                        <div class="product-title">Math Geometry Set</div>
+                        <div class="product-meta">Stainless Steel Tools</div>
+                        <div class="product-footer">
+                            <span class="price">₱185.00</span>
+                            <button class="btn-sm">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Order Monitoring & Verification Activity -->
+            <div>
+                <!-- Live Order Tracking Track -->
+                <div class="section-title">
+                    <h3>Track Live Orders</h3>
+                </div>
+                <div class="panel">
+                    <div class="track-card">

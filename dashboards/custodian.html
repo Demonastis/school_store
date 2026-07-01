@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custodian Dashboard - School Supplies Management System</title>
+    
+    <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body>
+
+    <!-- Sidebar Menu Component -->
+    <aside>
+        <div class="brand">
+            EduManage
+            <span>Custodian Panel</span>
+        </div>
+        <ul class="menu">
+            <li class="menu-item active">
+                <a href="#orders">📦 <span>Order Fulfillment</span></a>
+            </li>
+            <li class="menu-item">
+                <a href="#deliveries">🚚 <span>Inbound Deliveries</span></a>
+            </li>
+            <li class="menu-item">
+                <a href="#stock-count">🔄 <span>Stock Counts</span></a>
+            </li>
+            <li class="menu-item">
+                <a href="#labels">🏷️ <span>Print Labels</span></a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Section App Window -->
+    <main>
+        <header>
+            <h2>Order Fulfillment Center</h2>
+            <div class="user-profile">
+                <div class="user-info" style="text-align: right;">
+                    <h4 style="font-size: 0.9rem;">J. Santos</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">Warehouse Custodian</p>
+                </div>
+                <div class="avatar">JS</div>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- Operational Fulfillment Metrics -->
+            <div class="metrics-grid">
+                <div class="card">
+                    <div class="card-icon orange">⏳</div>
+                    <div class="card-data">
+                        <p>Awaiting Packing</p>
+                        <h3>18 Orders</h3>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon blue">📦</div>
+                    <div class="card-data">
+                        <p>Ready for Pickup</p>
+                        <h3>12 Orders</h3>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon teal">🚚</div>
+                    <div class="card-data">
+                        <p>Incoming Shipments</p>
+                        <h3>2 Today</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Context Control Elements -->
+            <div class="action-bar">
+                <h3 style="font-size: 1.1rem; font-weight: 600;">Active Customer Orders</h3>
+                <div class="btn-group">
+                    <button class="btn secondary">📥 Log New Delivery</button>
