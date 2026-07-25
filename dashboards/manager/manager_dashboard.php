@@ -114,5 +114,3 @@ $pending_deliveries = $pending_deliveries_result->fetch_assoc()['total'] ?? 0;
 
 
             <script src="../../js/getSupplier.js"></script>
-
-            <!-- monitor deliveries-->
