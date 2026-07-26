@@ -13,15 +13,15 @@ $ready_query = "SELECT COUNT(*) as total FROM transactions WHERE status = 'Ready
 $ready_result = $conn->query($ready_query);
 $ready_count = $ready_result->fetch_assoc()['total'] ?? 0;
 
-// Incoming Deliveries scheduled for today or currently pending
+// Incoming Deliveries scheduled across the entire current week lifecycle
 $incoming_query = "
     SELECT COUNT(*) as total 
-    FROM deliveries d
+    FROM purchase_orders d
     INNER JOIN purchase_orders po ON d.purchase_order_id = po.purchase_order_id
-    WHERE d.status = 'Pending' AND po.expected_delivery_date <= CURRENT_DATE()
+    WHERE d.status = 'Pending' 
 ";
 $incoming_result = $conn->query($incoming_query);
-$incoming_today = $incoming_result->fetch_assoc()['total'] ?? 0;
+$incoming_weekly_count = $incoming_result->fetch_assoc()['total'] ?? 0;
 
 
 // 2. Query Detailed Orders List for Custodian Fulfillment Processing Queue
@@ -40,26 +40,32 @@ $orders_result = $conn->query($orders_query);
 <!-- Operational Fulfillment Metrics -->
 <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px;">
     <div class="card" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; display: flex; align-items: center; gap: 15px;">
-        <div class="card-icon orange" style="font-size: 2rem; background: #fff3cd; padding: 10px; border-radius: 8px;"><?php include ("../../icons/timer-icon.html") ?></div>
+        <div class="card-icon orange" style="font-size: 2rem; background: #fff3cd; padding: 10px; border-radius: 8px;"><?php include("../../icons/timer-icon.html") ?></div>
         <div class="card-data">
             <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">Awaiting Packing</p>
             <h3 style="margin: 5px 0 0 0; font-size: 1.5rem; font-weight: bold; color: #fd7e14;"><?= $awaiting_count ?> Orders</h3>
         </div>
     </div>
     <div class="card" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; display: flex; align-items: center; gap: 15px;">
-        <div class="card-icon blue" style="font-size: 2rem; background: #cff4fc; padding: 10px; border-radius: 8px;"><?php include ("../../icons/box-icon.html") ?></div>
+        <div class="card-icon blue" style="font-size: 2rem; background: #cff4fc; padding: 10px; border-radius: 8px;"><?php include("../../icons/box-icon.html") ?></div>
         <div class="card-data">
             <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">Ready for Pickup</p>
             <h3 style="margin: 5px 0 0 0; font-size: 1.5rem; font-weight: bold; color: #0dcaf0;"><?= $ready_count ?> Orders</h3>
         </div>
     </div>
+    <!-- Card Block Tracking Weekly Deliveries -->
     <div class="card" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; display: flex; align-items: center; gap: 15px;">
-        <div class="card-icon teal" style="font-size: 2rem; background: #d1e7dd; padding: 10px; border-radius: 8px;"><?php include ("../../icons/truck-icon.html") ?></div>
+        <div class="card-icon teal" style="font-size: 2rem; background: #d1e7dd; padding: 10px; border-radius: 8px;">
+            <?php include("../../icons/truck-icon.html") ?>
+        </div>
         <div class="card-data">
-            <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">Incoming Shipments</p>
-            <h3 style="margin: 5px 0 0 0; font-size: 1.5rem; font-weight: bold; color: #198754;"><?= $incoming_today ?> Pending</h3>
+            <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">Weekly Shipments</p>
+            <h3 style="margin: 5px 0 0 0; font-size: 1.5rem; font-weight: bold; color: #198754;">
+                <?= $incoming_weekly_count ?> Pending
+            </h3>
         </div>
     </div>
+
 </div>
 
 <!-- Context Control Elements -->
@@ -68,7 +74,7 @@ $orders_result = $conn->query($orders_query);
     <div class="btn-group">
         <!-- Direct clean routing connection link to your manager-shared logistics tab -->
         <a class="py-2 px-3 d-inline-flex gap-1 align-items-center" href="custodian_dashboard.php?page=deliveries" class="btn secondary" style="text-decoration: none; background: #6c757d; color: white; border-radius: 4px; font-size: 0.9rem; font-weight: 500;">
-            <?php include ("../../icons/notes-small-icon.html") ?> Log New Delivery
+            <?php include("../../icons/notes-small-icon.html") ?> Log New Delivery
         </a>
     </div>
 
@@ -103,7 +109,7 @@ $orders_result = $conn->query($orders_query);
                         <td style="padding: 12px;">
                             <?php if ($order['status'] === 'Pending'): ?>
                                 <a class="d-flex gap-1 justify-content-center p-2 " href="process_fulfillment.php?action=pack&id=<?= $order['transaction_id'] ?>" style="background: #1A6B54; color: white; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">
-                                    <?php include ("../../icons/layer-small-icon.html") ?> Mark Packed
+                                    <?php include("../../icons/layer-small-icon.html") ?> Mark Packed
                                 </a>
                             <?php else: ?>
                                 <span style="background: #198754; color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; display: inline-block;">
@@ -117,7 +123,3 @@ $orders_result = $conn->query($orders_query);
         </tbody>
     </table>
 </div>
-
-
-
-
