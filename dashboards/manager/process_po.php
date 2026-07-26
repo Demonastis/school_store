@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Write a descriptive audit statement inside your audit logs table
         $audit_desc = "Generated purchase order #PO-{$new_po_id} for {$quantity} {$bulk_unit}(s) of '{$product_name}' at ₱" . number_format($wholesale_cost, 2) . " per unit from vendor {$supplier_name}.";
-        $audit_stmt = $conn->prepare("INSERT INTO audit_logs (user_id, action, module, description) VALUES (3, 'Create Purchase Order', 'Inventory Module', ?)");
+        $audit_stmt = $conn->prepare("INSERT INTO audit_logs (user_id, action, module, description) VALUES (3, 'Create Purchase Order', 'Inventory', ?)");
         $audit_stmt->bind_param("s", $audit_desc);
         $audit_stmt->execute();
 
