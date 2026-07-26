@@ -1,7 +1,7 @@
 <!-- MODULE 6: CREATE PURCHASE ORDER FORM INTERFACE -->
             <div id="purchase" class="content-section">
                 <div class="action-bar">
-                    <h3>Draft New Bulk Procurement Order</h3>
+                    <span></span>
                     <a href="#orders" class="btn secondary" style="text-decoration: none;">📋 View PO Registry</a>
                 </div>
 

@@ -1,6 +1,5 @@
 <div id="orders" class="content-section">
                 <div class="action-bar">
-                    <h3>Procurement & Purchase Orders</h3>
                 </div>
                 <div class="table-container">
                     <table>
