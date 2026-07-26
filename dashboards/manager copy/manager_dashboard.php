@@ -96,7 +96,7 @@ $pending_deliveries = $pending_deliveries_result->fetch_assoc()['total'] ?? 0;
             <div id="dashboard" class="content-section">
                 <!-- Strategic Performance Figures -->
                 <div class="metrics-grid">
-                    <div class="card">
+                    <div class="card-items">
                         <div class="card-icon blue">📦</div>
                         <div class="card-data">
                             <p>Total Products</p>
@@ -105,7 +105,7 @@ $pending_deliveries = $pending_deliveries_result->fetch_assoc()['total'] ?? 0;
                             </h3>
                         </div>
                     </div>
-                    <div class="card">
+                    <div class="card-items">
                         <div class="card-icon orange">⚠️</div>
                         <div class="card-data">
                             <p>Low Stock Items</p>
@@ -114,7 +114,7 @@ $pending_deliveries = $pending_deliveries_result->fetch_assoc()['total'] ?? 0;
                             </h3>
                         </div>
                     </div>
-                    <div class="card">
+                    <div class="card-items">
                         <div class="card-icon green">🚚</div>
                         <div class="card-data">
                             <p>Pending Deliveries</p>
@@ -278,7 +278,6 @@ $pending_deliveries = $pending_deliveries_result->fetch_assoc()['total'] ?? 0;
             <!-- MODULE 6: CREATE PURCHASE ORDER FORM INTERFACE -->
             <div id="purchase" class="content-section">
                 <div class="action-bar">
-                    <h3>Draft New Bulk Procurement Order</h3>
                     <a href="#orders" class="btn secondary" style="text-decoration: none;">📋 View PO Registry</a>
                 </div>
 

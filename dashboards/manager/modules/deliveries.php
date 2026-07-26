@@ -68,8 +68,7 @@ $deliveries_result = $conn->query($deliveries_query);
 ?>
 
 <div class="deliveries-module" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h3 style="margin: 0;">Logistics & Delivery Pipeline Status</h3>
+    <div style="display: flex; justify-content: end; align-items: center; margin-bottom: 20px;">
         <span style="background: #e9ecef; padding: 5px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; color: #495057;">
             Total Active Shipments: <?= $deliveries_result->num_rows ?>
         </span>
