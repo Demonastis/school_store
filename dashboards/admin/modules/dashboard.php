@@ -36,39 +36,13 @@ $orders_query = "
 ";
 $orders_result = $conn->query($orders_query);
 ?>
-
-<!-- Operational Fulfillment Metrics -->
-<div class="metrics-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px;">
-    <div class="card" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; display: flex; align-items: center; gap: 15px;">
-        <div class="card-icon orange" style="font-size: 2rem; background: #fff3cd; padding: 10px; border-radius: 8px;"><?php include ("../../icons/timer-icon.html") ?></div>
-        <div class="card-data">
-            <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">Awaiting Packing</p>
-            <h3 style="margin: 5px 0 0 0; font-size: 1.5rem; font-weight: bold; color: #fd7e14;"><?= $awaiting_count ?> Orders</h3>
-        </div>
-    </div>
-    <div class="card" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; display: flex; align-items: center; gap: 15px;">
-        <div class="card-icon blue" style="font-size: 2rem; background: #cff4fc; padding: 10px; border-radius: 8px;"><?php include ("../../icons/box-icon.html") ?></div>
-        <div class="card-data">
-            <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">Ready for Pickup</p>
-            <h3 style="margin: 5px 0 0 0; font-size: 1.5rem; font-weight: bold; color: #0dcaf0;"><?= $ready_count ?> Orders</h3>
-        </div>
-    </div>
-    <div class="card" style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; display: flex; align-items: center; gap: 15px;">
-        <div class="card-icon teal" style="font-size: 2rem; background: #d1e7dd; padding: 10px; border-radius: 8px;"><?php include ("../../icons/truck-icon.html") ?></div>
-        <div class="card-data">
-            <p style="margin: 0; color: #6c757d; font-size: 0.9rem;">Incoming Shipments</p>
-            <h3 style="margin: 5px 0 0 0; font-size: 1.5rem; font-weight: bold; color: #198754;"><?= $incoming_today ?> Pending</h3>
-        </div>
-    </div>
-</div>
-
 <!-- Context Control Elements -->
 <div class="action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
     <h3 style="font-size: 1.1rem; font-weight: 600; margin: 0;">Active Customer Orders Queue</h3>
     <div class="btn-group">
         <!-- Direct clean routing connection link to your manager-shared logistics tab -->
         <a class="py-2 px-3 d-inline-flex gap-1 align-items-center" href="custodian_dashboard.php?page=deliveries" class="btn secondary" style="text-decoration: none; background: #6c757d; color: white; border-radius: 4px; font-size: 0.9rem; font-weight: 500;">
-            <?php include ("../../icons/notes-small-icon.html") ?> Log New Delivery
+            <?php include ("../../icons/plus-icon.html") ?> Add User
         </a>
     </div>
 
@@ -79,12 +53,12 @@ $orders_result = $conn->query($orders_query);
     <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left;">
         <thead>
             <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                <th style="padding: 12px;">Order ID</th>
-                <th style="padding: 12px;">Order Placement Date</th>
-                <th style="padding: 12px;">Customer/Cashier Account</th>
-                <th style="padding: 12px;">Item Count Balance</th>
-                <th style="padding: 12px;">Financial Value</th>
-                <th style="padding: 12px;">Operational Fulfillment Status</th>
+                <th style="padding: 12px;">User ID</th>
+                <th style="padding: 12px;">Name</th>
+                <th style="padding: 12px;">Role</th>
+                <th style="padding: 12px;">Status</th>
+
+                <th style="padding: 12px;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -99,11 +73,10 @@ $orders_result = $conn->query($orders_query);
                         <td style="padding: 12px; color: #555;"><?= date('M d, Y H:i', strtotime($order['transaction_date'])) ?></td>
                         <td style="padding: 12px;"><?= htmlspecialchars($order['first_name'] . ' ' . $order['last_name']) ?: 'Guest Checkout' ?></td>
                         <td style="padding: 12px; font-weight: 500;"><?= intval($order['total_items']) ?> units</td>
-                        <td style="padding: 12px; font-weight: bold; color: #2b2b2b;">$<?= number_format($order['total_amount'], 2) ?></td>
                         <td style="padding: 12px;">
                             <?php if ($order['status'] === 'Pending'): ?>
                                 <a class="d-flex gap-1 justify-content-center p-2 " href="process_fulfillment.php?action=pack&id=<?= $order['transaction_id'] ?>" style="background: #1A6B54; color: white; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">
-                                    <?php include ("../../icons/layer-small-icon.html") ?> Mark Packed
+                                    <?php include ("../../icons/layer-small-icon.html") ?> Activate
                                 </a>
                             <?php else: ?>
                                 <span style="background: #198754; color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; display: inline-block;">

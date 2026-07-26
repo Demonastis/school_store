@@ -1,7 +1,6 @@
 <!-- MODULE 2: ALL PRODUCTS INVENTORY -->
             <div id="products" class="content-section">
                 <div class="action-bar">
-                    <h3>Comprehensive Stock Master List</h3>
                 </div>
                 <div class="table-container">
                     <table>

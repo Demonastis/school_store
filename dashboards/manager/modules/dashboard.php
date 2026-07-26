@@ -2,8 +2,8 @@
             <div id="dashboard" class="content-section">
                 <!-- Strategic Performance Figures -->
                 <div class="metrics-grid">
-                    <div class="card">
-                        <div class="card-icon blue">📦</div>
+                    <div class="card-items">
+                        <div class="card-icon blue"><?php include("../../icons/box-icon-product.html") ?></div>
                         <div class="card-data">
                             <p>Total Products</p>
                             <h3>
@@ -11,8 +11,8 @@
                             </h3>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-icon orange">⚠️</div>
+                    <div class="card-items">
+                        <div class="card-icon orange"><?php include("../../icons/warning-icon.html") ?></div>
                         <div class="card-data">
                             <p>Low Stock Items</p>
                             <h3>
@@ -20,8 +20,8 @@
                             </h3>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-icon green">🚚</div>
+                    <div class="card-items">
+                        <div class="card-icon green"><?php include("../../icons/truck-red-icon.html") ?></div>
                         <div class="card-data">
                             <p>Pending Deliveries</p>
                             <h3>
@@ -34,7 +34,7 @@
                 <!-- Context Control Elements -->
                 <div class="action-bar">
                     <h3 style="font-size: 1.1rem; font-weight: 600;">Critical Inventory Status</h3>
-                    <a href="manager_dashboard.php?page=purchase" class="btn" style="text-decoration: none;">➕ Create Purchase Order</a>
+                    <a href="manager_dashboard.php?page=purchase" class="btn" style="text-decoration: none;"><?php include ("../../icons/plus-icon.html") ?> Create Purchase Order</a>
                 </div>
 
                 <!-- Dynamic Alert Ledger Sheet -->
@@ -65,7 +65,7 @@
 
                             if ($critical_stock_result && $critical_stock_result->num_rows > 0) {
                                 while ($row = $critical_stock_result->fetch_assoc()) {
-                                    $status_badge = ($row['current_stock'] == 0) ? '<span class="badge danger">Out of Stock</span>' : '<span class="badge warning">Low Stock</span>';
+                                    $status_badge = ($row['current_stock'] == 0) ? '<span class="badge danger border border-danger">Out of Stock</span>' : '<span class="badge warning">Low Stock</span>';
                                     echo "<tr>";
                                     echo "<td><strong>#PROD-{$row['product_id']}</strong></td>";
                                     echo "<td>" . htmlspecialchars($row['product_name']) . "</td>";

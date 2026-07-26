@@ -10,7 +10,7 @@ if (isset($_SESSION['role'])) {
             header("Location: dashboards/owner_dashboard.php");
             break;
         case 'Manager':
-            header("Location: dashboards/manager_dashboard.php");
+            header("Location: dashboards/manager/manager_dashboard.php");
             break;
         case 'Custodian':
             header("Location: dashboards/custodian_dashboard.php");
