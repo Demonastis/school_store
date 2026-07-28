@@ -1,5 +1,11 @@
 <?php
 require_once '../../config/db.php';
+require '../../auth/auth.php';
+
+// Check if user is logged in
+requireLogin();
+requireRole(['Custodian']); // Only allow users with the 'custodian' role
+
 ?>
 <head>
     <meta charset="UTF-8">
