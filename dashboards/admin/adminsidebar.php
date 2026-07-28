@@ -5,7 +5,7 @@
       </div>
       <ul class="menu">
           <li class="menu-item active">
-              <a href="admin_dashboard.php?page=dashboard"><?php include ("../../icons/box-icon.html") ?> <span>User Management</span></a>
+              <a href="admin_dashboard.php?page=users"><?php include ("../../icons/box-icon.html") ?> <span>User Management</span></a>
           </li>
           <li class="menu-item">
               <a href="admin_dashboard.php?page=audit-trail"><?php include ("../../icons/truck-icon.html") ?> <span>Audit Trail</span></a>
