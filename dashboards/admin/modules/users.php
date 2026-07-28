@@ -144,10 +144,10 @@ $users_result = $conn->query($users_query);
                         <td style="padding: 12px;">
                             <?php 
                             $role_tint = '#64748b';
-                            if ($user['role'] === 'admin') $role_tint = '#dc2626';
-                            if ($user['role'] === 'manager') $role_tint = '#2563eb';
-                            if ($user['role'] === 'custodian') $role_tint = '#d97706';
-                            if ($user['role'] === 'cashier') $role_tint = '#059669';
+                            if ($user['role'] === 'Admin') $role_tint = '#dc2626';
+                            if ($user['role'] === 'Manager') $role_tint = '#2563eb';
+                            if ($user['role'] === 'Custodian') $role_tint = '#d97706';
+                            if ($user['role'] === 'Cashier') $role_tint = '#059669';
                             ?>
                             <span style="background: <?= $role_tint ?>; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
                                 <?= htmlspecialchars($user['role']) ?>
@@ -212,10 +212,10 @@ $users_result = $conn->query($users_query);
             <div style="margin-bottom: 20px;">
                 <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 6px;">System Access Authorization Role *</label>
                 <select name="role" required style="width: 100%; box-sizing: border-box; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; background: white; font-size: 0.9rem;">
-                    <option value="cashier">Cashier</option>
-                    <option value="custodian">Custodian</option>
-                    <option value="manager">Manager</option>
-                    <option value="admin">Admin</option>
+                    <option value="Cashier">Cashier</option>
+                    <option value="Custodian">Custodian</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Admin">Admin</option>
                 </select>
             </div>
 

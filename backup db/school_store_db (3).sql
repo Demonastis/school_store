@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 01, 2026 at 05:15 PM
+-- Generation Time: Jul 28, 2026 at 03:24 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -44,7 +44,16 @@ INSERT INTO `audit_logs` (`log_id`, `user_id`, `action`, `module`, `description`
 (1, 1, 'User Login', 'Login Module', 'Admin successfully logged in from IP ::1', '2026-06-21 08:55:50'),
 (2, 3, 'Update Stock', 'Inventory Module', 'Manager updated stock level for Product ID 3 to 12 units', '2026-06-21 08:55:50'),
 (3, 5, 'Process Payment', 'Cashier Module', 'Cashier verified payment and recorded Transaction ID 1', '2026-06-21 08:55:50'),
-(4, 3, 'Create Purchase Order', 'Inventory Module', 'Generated purchase order #PO-4 for 2 Box(s) of \'Notebook Blue 80 Leaves\' at ₱15.00 per unit from vendor ABC School Supplies Inc..', '2026-07-01 22:09:59');
+(4, 3, 'Create Purchase Order', 'Inventory Module', 'Generated purchase order #PO-4 for 2 Box(s) of \'Notebook Blue 80 Leaves\' at ₱15.00 per unit from vendor ABC School Supplies Inc..', '2026-07-01 22:09:59'),
+(8, 3, 'Create Purchase Order', 'Inventory Module', 'Generated purchase order #PO-8 for 1 Box(s) of \'Notebook Blue 80 Leaves\' at ₱15.00 per unit from vendor ABC School Supplies Inc..', '2026-07-25 21:06:40'),
+(9, 3, 'Create Purchase Order', 'Inventory Module', 'Generated purchase order #PO-9 for 1 Box(s) of \'Notebook Blue 80 Leaves\' at ₱15.00 per unit from vendor ABC School Supplies Inc..', '2026-07-25 21:06:43'),
+(10, 3, 'Create Purchase Order', 'Inventory Module', 'Generated purchase order #PO-10 for 1 Box(s) of \'Notebook Blue 80 Leaves\' at ₱15.00 per unit from vendor ABC School Supplies Inc..', '2026-07-25 21:06:44'),
+(11, 3, 'Create Purchase Order', 'Inventory Module', 'Generated purchase order #PO-11 for 1 Box(s) of \'Notebook Blue 80 Leaves\' at ₱15.00 per unit from vendor ABC School Supplies Inc..', '2026-07-25 21:06:45'),
+(12, 3, 'Create Purchase Order', 'Inventory Module', 'Generated purchase order #PO-12 for 1 Box(s) of \'Notebook Blue 80 Leaves\' at ₱15.00 per unit from vendor ABC School Supplies Inc..', '2026-07-25 21:07:04'),
+(13, 3, 'Create Purchase Order', 'Inventory Module', 'Generated purchase order #PO-13 for 2 Box(s) of \'Black Ballpoint Pen\' at ₱6.00 per unit from vendor ABC School Supplies Inc..', '2026-07-26 19:36:59'),
+(14, 4, 'Inventory Reconciliation', 'Warehouse Module', 'Manual inventory reconciliation for item \'Black Ballpoint Pen\'. Count adjusted from 12 to 10 (Variance: -2 units). Reason: Damaged Goods Discard.', '2026-07-26 20:41:38'),
+(15, 1, 'Archive User', 'Admin Directory Module', 'Admin archived and disabled active user directory access for user: Charlie Cashier (Username: \'cashier_user\').', '2026-07-28 21:21:32'),
+(16, 1, 'Restore User', 'Admin Archive Module', 'Admin restored archived user profile ID #USER-5 back to active directory status.', '2026-07-28 21:21:39');
 
 -- --------------------------------------------------------
 
@@ -66,7 +75,14 @@ CREATE TABLE `deliveries` (
 
 INSERT INTO `deliveries` (`delivery_id`, `purchase_order_id`, `received_date`, `received_by`, `status`) VALUES
 (1, 2, '2026-06-18 10:30:00', 4, 'Completed'),
-(2, 1, '2026-06-21 14:15:00', 3, 'Partial');
+(2, 1, '2026-06-21 14:15:00', 3, 'Partial'),
+(3, 1, '2026-07-26 14:37:33', 1, 'Received'),
+(4, 4, '2026-07-26 14:42:29', 1, 'Received'),
+(5, 9, '2026-07-26 14:42:59', 1, 'Received'),
+(6, 10, '2026-07-26 14:48:09', 1, 'Received'),
+(7, 11, '2026-07-26 14:49:02', 1, 'Received'),
+(8, 12, '2026-07-28 14:06:07', 1, 'Received'),
+(9, 8, '2026-07-28 14:06:22', 1, 'Received');
 
 -- --------------------------------------------------------
 
@@ -87,9 +103,9 @@ CREATE TABLE `inventory` (
 --
 
 INSERT INTO `inventory` (`inventory_id`, `product_id`, `current_stock`, `minimum_stock`, `last_updated`) VALUES
-(1, 1, 150, 20, '2026-06-21 08:55:49'),
+(1, 1, 156, 20, '2026-07-28 20:06:22'),
 (2, 2, 45, 15, '2026-06-21 08:55:49'),
-(3, 3, 12, 20, '2026-06-21 08:55:49'),
+(3, 3, 10, 20, '2026-07-26 20:41:38'),
 (4, 4, 0, 10, '2026-06-21 08:55:49');
 
 -- --------------------------------------------------------
@@ -186,10 +202,16 @@ CREATE TABLE `purchase_orders` (
 --
 
 INSERT INTO `purchase_orders` (`purchase_order_id`, `supplier_id`, `order_date`, `expected_delivery_date`, `status`, `total_amount`, `created_by`, `Box_unit`) VALUES
-(1, 1, '2026-06-15', '2026-06-22', 'Pending', 15450.00, 'manager_user', NULL),
-(2, 2, '2026-06-10', '2026-06-18', 'Received', 42000.00, 'manager_user', NULL),
-(3, 3, '2026-06-20', '2026-06-27', 'Cancelled', 520.50, 'admin_user', NULL),
-(4, 1, '2026-07-01', '2026-07-04', 'Pending', 30.00, 'manager_user', 2);
+(1, 1, '2026-06-15', '2026-06-22', 'Completed', 15450.00, 'manager_user', 1),
+(2, 2, '2026-06-10', '2026-06-18', 'Received', 42000.00, 'manager_user', 1),
+(3, 3, '2026-06-20', '2026-06-27', 'Cancelled', 520.50, 'admin_user', 1),
+(4, 1, '2026-07-01', '2026-07-04', 'Completed', 30.00, 'manager_user', 2),
+(8, 1, '2026-07-25', '2026-07-28', 'Completed', 15.00, 'manager_user', 1),
+(9, 1, '2026-07-25', '2026-07-28', 'Completed', 15.00, 'manager_user', 1),
+(10, 1, '2026-07-25', '2026-07-28', 'Completed', 15.00, 'manager_user', 1),
+(11, 1, '2026-07-25', '2026-07-28', 'Completed', 15.00, 'manager_user', 1),
+(12, 1, '2026-07-25', '2026-07-28', 'Completed', 15.00, 'manager_user', 1),
+(13, 1, '2026-07-26', '2026-07-29', 'Pending', 12.00, 'manager_user', 2);
 
 -- --------------------------------------------------------
 
@@ -212,7 +234,7 @@ CREATE TABLE `suppliers` (
 --
 
 INSERT INTO `suppliers` (`supplier_id`, `supplier_name`, `contact_person`, `email`, `phone`, `address`, `created_at`) VALUES
-(1, 'ABC School Supplies Inc.', 'John Doe', 'sales@abcsupplies.com', '+63 917 123 4567', 'Manila, Philippines', '2026-06-25 10:09:16'),
+(1, 'ABC School Supplies Inc.', 'John Doe', 'hanzllenardkima.sacdalan@gmail.com', '+63 917 123 4567', 'Manila, Philippines', '2026-06-25 10:09:16'),
 (2, 'Global Garments Corp.', 'Jane Smith', 'info@globalgarments.ph', '+63 2 8888 1234', 'Cebu City, Philippines', '2026-06-25 10:09:16'),
 (3, 'Star Stationery Wholesalers', 'Mark Lee', 'mark@starstationery.com', '+63 908 765 4321', 'Quezon City, Philippines', '2026-06-25 10:09:16');
 
@@ -279,6 +301,7 @@ CREATE TABLE `users` (
   `username` varchar(50) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
   `role` varchar(20) NOT NULL,
+  `is_archived` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -286,13 +309,13 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `first_name`, `last_name`, `email`, `username`, `password_hash`, `role`, `created_at`) VALUES
-(1, 'System', 'Admin', 'admin@store.com', 'admin_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Admin', '2026-06-21 08:55:49'),
-(2, 'Store', 'Owner', 'owner@store.com', 'owner_user', '$2y$10$7R3vXmG8v79yYg7wX7G4eO6S2K3Xm6N5H9z8Cg7r5F5w2K2U2b2u2', 'Owner', '2026-06-21 08:55:49'),
-(3, 'Alice', 'Manager', 'manager@store.com', 'manager_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', '2026-06-21 08:55:49'),
-(4, 'Bob', 'Custodian', 'custodian@store.com', 'custodian_user', '$2y$10$7R3vXmG8v79yYg7wX7G4eO6S2K3Xm6N5H9z8Cg7r5F5w2K2U2b2u2', 'Custodian', '2026-06-21 08:55:49'),
-(5, 'Charlie', 'Cashier', 'cashier@store.com', 'cashier_user', '$2y$10$7R3vXmG8v79yYg7wX7G4eO6S2K3Xm6N5H9z8Cg7r5F5w2K2U2b2u2', 'Cashier', '2026-06-21 08:55:49'),
-(6, 'John', 'Doe', 'customer@store.com', 'customer_user', '$2y$10$7R3vXmG8v79yYg7wX7G4eO6S2K3Xm6N5H9z8Cg7r5F5w2K2U2b2u2', 'Customer', '2026-06-21 08:55:49');
+INSERT INTO `users` (`user_id`, `first_name`, `last_name`, `email`, `username`, `password_hash`, `role`, `is_archived`, `created_at`) VALUES
+(1, 'System', 'Admin', 'admin@store.com', 'admin_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Admin', 0, '2026-06-21 08:55:49'),
+(2, 'Store', 'Owner', 'owner@store.com', 'owner_user', '$2y$10$7R3vXmG8v79yYg7wX7G4eO6S2K3Xm6N5H9z8Cg7r5F5w2K2U2b2u2', 'Owner', 0, '2026-06-21 08:55:49'),
+(3, 'Alice', 'Manager', 'manager@store.com', 'manager_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 0, '2026-06-21 08:55:49'),
+(4, 'Bob', 'Custodian', 'custodian@store.com', 'custodian_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Custodian', 0, '2026-06-21 08:55:49'),
+(5, 'Charlie', 'Cashier', 'cashier@store.com', 'cashier_user', '$2y$10$7R3vXmG8v79yYg7wX7G4eO6S2K3Xm6N5H9z8Cg7r5F5w2K2U2b2u2', 'Cashier', 0, '2026-06-21 08:55:49'),
+(6, 'John', 'Doe', 'customer@store.com', 'customer_user', '$2y$10$7R3vXmG8v79yYg7wX7G4eO6S2K3Xm6N5H9z8Cg7r5F5w2K2U2b2u2', 'Customer', 0, '2026-06-21 08:55:49');
 
 --
 -- Indexes for dumped tables
@@ -384,13 +407,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_logs`
 --
 ALTER TABLE `audit_logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `deliveries`
 --
 ALTER TABLE `deliveries`
-  MODIFY `delivery_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `delivery_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `inventory`
@@ -420,7 +443,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT for table `purchase_orders`
 --
 ALTER TABLE `purchase_orders`
-  MODIFY `purchase_order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `purchase_order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `suppliers`
