@@ -1,5 +1,10 @@
 <?php
 require_once '../../config/db.php';
+require '../../auth/auth.php';
+
+// Check if user is logged in
+requireLogin();
+requireRole(['Manager']); // Only allow users with the 'manager' role
 
 // Fetch Dynamic Aggregated Operational Metrics
 // Total Products Calculation
