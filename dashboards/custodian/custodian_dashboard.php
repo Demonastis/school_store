@@ -11,12 +11,26 @@ require_once '../../config/db.php';
 </head>
 <body>
 
-    <?php include("custodiansidebar.php")?>
+    <?php include("custodiansidebar.php");?>
 
     <!-- Main Section App Window -->
     <main>
         <header>
-            <h2>Order Fulfillment Center</h2>
+            <h2><?php 
+
+            $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+            // echo "page is: " . $page; 
+            if ($page == 'dashboard') {
+                echo 'Order Fulfillment Center';
+            } else if ($page == 'deliveries') {  
+                echo 'Stock Deliveries';
+            } else if ($page == 'stock-count') {  
+                echo 'Inventory Check';
+            } else if ($page == 'labels') {  
+                echo 'Generate Labels';
+            }else {echo ' 404: Module not found ';
+            }
+            ?> </h2>
         </header>
 
         <div class="content">

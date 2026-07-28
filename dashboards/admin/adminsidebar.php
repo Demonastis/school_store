@@ -8,10 +8,10 @@
               <a href="admin_dashboard.php?page=dashboard"><?php include ("../../icons/box-icon.html") ?> <span>User Management</span></a>
           </li>
           <li class="menu-item">
-              <a href="admin_dashboard.php?page=deliveries"><?php include ("../../icons/truck-icon.html") ?> <span>Audit Trail</span></a>
+              <a href="admin_dashboard.php?page=audit-trail"><?php include ("../../icons/truck-icon.html") ?> <span>Audit Trail</span></a>
           </li>
           <li class="menu-item">
-              <a href="aadmin_dashboard.php?page=stock-count"><?php include ("../../icons/cycle-icon.html") ?> <span>Archive</span></a>
+              <a href="admin_dashboard.php?page=archive"><?php include ("../../icons/cycle-icon.html") ?> <span>Archive</span></a>
           </li>
       </ul>
       <div class="btn-group dropend mb-2">
