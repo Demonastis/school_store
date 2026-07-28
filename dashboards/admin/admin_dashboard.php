@@ -26,7 +26,7 @@ requirerole(['Admin']); // Only allow users with the 'admin' role
             <div class="content">
             <?php
             // Get the page from the URL, default to 'dashboard'
-            $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+            $page = isset($_GET['page']) ? $_GET['page'] : 'users';
 
             // Create the path to the module file
             $module_path = "modules/" . $page . ".php";
