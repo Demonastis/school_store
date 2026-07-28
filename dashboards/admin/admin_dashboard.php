@@ -1,5 +1,8 @@
 <?php
 require_once '../../config/db.php';
+require_once '../../auth/auth.php';
+requirelogin();
+requirerole(['Admin']); // Only allow users with the 'admin' role
 ?>
 <head>
     <meta charset="UTF-8">

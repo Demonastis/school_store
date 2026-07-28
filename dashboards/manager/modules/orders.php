@@ -19,7 +19,8 @@
                             $po_sql = "SELECT po.purchase_order_id, s.supplier_name, s.contact_person, s.phone, 
                                   po.expected_delivery_date, po.total_amount, po.status 
                            FROM purchase_orders po
-                           INNER JOIN suppliers s ON po.supplier_id = s.supplier_id";
+                           INNER JOIN suppliers s ON po.supplier_id = s.supplier_id
+                           ORDER BY po.expected_delivery_date DESC ";
 
                             $po_result = $conn->query($po_sql);
                             while ($po = $po_result->fetch_assoc()) {
