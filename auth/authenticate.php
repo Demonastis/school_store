@@ -1,7 +1,6 @@
 <?php
 session_start();
-// Adjusted path to look one folder up for config.php since authenticate is inside the auth/ folder
-require_once '../config/db.php'; 
+require_once '../config/db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = trim($_POST['username']);
@@ -12,27 +11,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    $query = "SELECT user_id, first_name, last_name, email, password_hash, role FROM Users WHERE username = ?";
-    
+    // login validation query to filter out archived users
+    $query = "SELECT user_id, username, password_hash, role FROM users WHERE username = ? AND is_archived = 0";
+
+
     if ($stmt = $conn->prepare($query)) {
         $stmt->bind_param("s", $username);
         $stmt->execute();
-        
-        $result = $stmt->get_result(); 
-        
+
+        $result = $stmt->get_result();
+
         if ($result && $result->num_rows === 1) {
             $user = $result->fetch_assoc();
-            
-            
+
+
             if (password_verify($password, $user['password_hash'])) {
                 $_SESSION['user_id']    = $user['user_id'];
                 $_SESSION['username']   = $username;
                 $_SESSION['role']       = $user['role'];
                 $_SESSION['first_name'] = $user['first_name'];
                 $_SESSION['last_name']  = $user['last_name'];
-                
-                $stmt->close(); 
-                
+
+                $stmt->close();
+
                 switch ($user['role']) {
                     case 'Admin':
                         header("Location: ../dashboards/admin/admin_dashboard.php");
@@ -61,11 +62,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $stmt->close();
     }
-    
+
     header("Location: ../auth/login.php?error=Invalid username or password.");
     exit();
 } else {
     header("Location: ../auth/login.php");
     exit();
 }
-?>
