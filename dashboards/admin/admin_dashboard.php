@@ -2,7 +2,22 @@
 require_once '../../config/db.php';
 require_once '../../auth/auth.php';
 requirelogin();
-requirerole(['Admin']); // Only allow users with the 'admin' role
+requirerole(['Admin']); 
+
+$user_id = $_SESSION['user_id'];
+$user_query = "
+    SELECT user_id, username, role, profile_picture
+    FROM users
+    WHERE user_id = ?
+";
+
+$stmt = $conn->prepare($user_query);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+
+$user_result = $stmt->get_result();
+$user = $user_result->fetch_assoc();
+
 ?>
 <head>
     <meta charset="UTF-8">
@@ -11,6 +26,29 @@ requirerole(['Admin']); // Only allow users with the 'admin' role
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="../../css/style.css"/>
+    <style>
+        .avatar {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    min-height: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 600;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+    </style>
 </head>
 <body>
 

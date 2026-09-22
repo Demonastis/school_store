@@ -21,6 +21,23 @@ $low_stock_count = $low_stock_result->fetch_assoc()['total'] ?? 0;
 $pending_deliveries_query = "SELECT COUNT(*) as total FROM purchase_orders WHERE status = 'Pending'";
 $pending_deliveries_result = $conn->query($pending_deliveries_query);
 $pending_deliveries = $pending_deliveries_result->fetch_assoc()['total'] ?? 0;
+
+
+$user_id = $_SESSION['user_id'];
+$user_query = "
+    SELECT user_id, username, role, profile_picture
+    FROM users
+    WHERE user_id = ?
+";
+
+$stmt = $conn->prepare($user_query);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+
+$user_result = $stmt->get_result();
+$user = $user_result->fetch_assoc();
+
+
 ?>
 
 
@@ -53,72 +70,57 @@ $pending_deliveries = $pending_deliveries_result->fetch_assoc()['total'] ?? 0;
         :target~.content-section:first-of-type {
             display: none;
         }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            min-height: 42px;
+            border-radius: 50%;
+            overflow: hidden;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: 600;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
     </style>
 </head>
 
 <body>
 
     <!-- Sidebar Menu Component -->
-    <aside>
-        <div class="brand">
-            EduManage
-            <span>Manager Workspace</span>
-        </div>
-        <ul class="menu">
-            <li class="menu-item">
-                <a href="manager_dashboard.php?page=dashboard"><?php include ("../../icons/folder-icon.html") ?> <span>Dashboard</span></a>
-            </li>
-            <li class="menu-item">
-                <a href="manager_dashboard.php?page=products"><?php include ("../../icons/box-icon.html") ?> <span>Products Inventory</span></a>
-            </li>
-            <li class="menu-item">
-                <a href="manager_dashboard.php?page=orders"><?php include ("../../icons/file-icon.html") ?> <span>Purchase Orders</span></a>
-            </li>
-            <li class="menu-item">
-                <a href="manager_dashboard.php?page=purchase"><?php include ("../../icons/layer-icon.html") ?> <span>Create PO</span></a>
-            </li>
-            <li class="menu-item">
-                <a href="manager_dashboard.php?page=deliveries"><?php include ("../../icons/truck-icon.html") ?> <span>Monitor Deliveries</span></a>
-            </li>
-            <li class="menu-item">
-                <a href="manager_dashboard.php?page=reports"><?php include ("../../icons/graph-icon.html") ?> <span>Replenishment Reports</span></a>
-            </li>
-        </ul>
-        <div class="btn-group dropend mb-2">
-            <a role="button" class="user-profile dropdown-toggle text-white text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
-                <div class="avatar ">MR</div>
-                <div class="user-info" style="text-align: left;">
-                    <span style="font-size: 0.9rem;">M. Reynolds</span>
-                    <span style="font-size: 0.75rem; color: var(--text-muted);">Inventory Manager</span>
-                </div>
-            </a>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="../../auth/logout.php">Logout</a></li>
-                <!-- Dropdown menu links -->
-            </ul>
-        </div>
-    </aside>
+    <?php include("managersidebar.php");?>
 
     <!-- Main Section App Window -->
     <main>
         <header>
-            <h2><?php 
+            <h2><?php
 
-            $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
-            // echo "page is: " . $page; 
-            if ($page == 'dashboard') {
-                echo 'Overview Dashboard';
-            } else if ($page == 'products') {
-                echo 'Comprehensive Stock Master List';
-            } else if ($page == 'orders') {  
-                echo 'Procurement & Purchase Orders';
-            } else if ($page == 'purchase') {  
-                echo 'Draft New Bulk Procurement Order';
-            } else if ($page == 'deliveries') {  
-                echo 'Logistics & Delivery Pipeline Status';
-            }else {echo ' 404: Module not found ';
-            }
-            ?> </h2>
+                $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+                // echo "page is: " . $page; 
+                if ($page == 'dashboard') {
+                    echo 'Overview Dashboard';
+                } else if ($page == 'products') {
+                    echo 'Comprehensive Stock Master List';
+                } else if ($page == 'orders') {
+                    echo 'Procurement & Purchase Orders';
+                } else if ($page == 'purchase') {
+                    echo 'Draft New Bulk Procurement Order';
+                } else if ($page == 'deliveries') {
+                    echo 'Logistics & Delivery Pipeline Status';
+                } else {
+                    echo ' 404: Module not found ';
+                }
+                ?> </h2>
             <div class="user-profile">
             </div>
         </header>
@@ -128,7 +130,7 @@ $pending_deliveries = $pending_deliveries_result->fetch_assoc()['total'] ?? 0;
             // Get the page from the URL, default to 'dashboard'
             $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
 
-             // Create the path to the module file
+            // Create the path to the module file
             $module_path = "modules/" . $page . ".php";
 
             // Security check: only include if file exists
