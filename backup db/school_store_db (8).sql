@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 22, 2026 at 08:14 AM
+-- Generation Time: Oct 04, 2026 at 01:24 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -67,7 +67,10 @@ INSERT INTO `audit_logs` (`log_id`, `user_id`, `action`, `module`, `description`
 (27, 1, 'Create User', 'Admin Directory Module', 'Admin provisioned a new user profile account for Llenard Kim Sacdalan (Username: \'hanz\', Role: \'cashier\').', '2026-07-28 21:58:28'),
 (28, 1, 'Create User', 'Admin Directory Module', 'Admin provisioned a new user profile account for vus cus (Username: \'cus\', Role: \'custodian\').', '2026-07-28 22:04:01'),
 (29, 1, 'Archive User', 'Admin Directory Module', 'Admin archived and disabled active user directory access for user: Charlie Cashier (Username: \'cashier_user\').', '2026-08-28 09:24:53'),
-(30, 1, 'Restore User', 'Admin Archive Module', 'Admin restored archived user profile ID #USER-5 back to active directory status.', '2026-08-28 09:25:02');
+(30, 1, 'Restore User', 'Admin Archive Module', 'Admin restored archived user profile ID #USER-5 back to active directory status.', '2026-08-28 09:25:02'),
+(31, 5, 'Create Payment Checkout', 'PayMongo Payment Module', 'Customer Charlie Cashier created PayMongo checkout for order #TXN-15 valued at ₱350.00. Payment is pending.', '2026-09-28 13:45:12'),
+(32, 6, 'Create Payment Checkout', 'PayMongo Payment Module', 'Customer John Doe created PayMongo checkout for order #TXN-16 valued at ₱400.00. Payment is pending.', '2026-09-28 14:03:56'),
+(33, 6, 'Create Payment Checkout', 'PayMongo Payment Module', 'Customer John Doe created PayMongo checkout for order #TXN-17 valued at ₱725.00. Payment is pending.', '2026-09-28 14:04:28');
 
 -- --------------------------------------------------------
 
@@ -142,7 +145,12 @@ CREATE TABLE `order_items` (
 --
 
 INSERT INTO `order_items` (`order_item_id`, `transaction_id`, `product_id`, `quantity`, `unit_price`, `subtotal`) VALUES
-(1, 1, 1, 5, 25.00, 125.00);
+(1, 1, 1, 5, 25.00, 125.00),
+(12, 15, 2, 1, 350.00, 350.00),
+(13, 16, 2, 1, 350.00, 350.00),
+(14, 16, 1, 2, 25.00, 50.00),
+(15, 17, 2, 2, 350.00, 700.00),
+(16, 17, 1, 1, 25.00, 25.00);
 
 -- --------------------------------------------------------
 
@@ -155,16 +163,23 @@ CREATE TABLE `payments` (
   `transaction_id` int(11) NOT NULL,
   `payment_method` varchar(30) NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  `payment_status` varchar(20) NOT NULL
+  `payment_status` varchar(20) NOT NULL,
+  `paymongo_checkout_session_id` varchar(100) DEFAULT NULL,
+  `paymongo_payment_id` varchar(100) DEFAULT NULL,
+  `paymongo_checkout_url` text DEFAULT NULL,
+  `paid_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `payments`
 --
 
-INSERT INTO `payments` (`payment_id`, `transaction_id`, `payment_method`, `amount`, `payment_status`) VALUES
-(1, 1, 'cash', 125.00, 'Paid'),
-(2, 2, 'e-wallet', 750.00, 'Paid');
+INSERT INTO `payments` (`payment_id`, `transaction_id`, `payment_method`, `amount`, `payment_status`, `paymongo_checkout_session_id`, `paymongo_payment_id`, `paymongo_checkout_url`, `paid_at`) VALUES
+(1, 1, 'cash', 125.00, 'Paid', NULL, NULL, NULL, NULL),
+(2, 2, 'e-wallet', 750.00, 'Paid', NULL, NULL, NULL, NULL),
+(3, 15, 'PayMongo Hosted Checkout', 350.00, 'Pending', 'cs_4ebf8be63548f1045a3fb2de', NULL, 'https://checkout.paymongo.com/4ebf8be63548f1045a3fb2de', NULL),
+(4, 16, 'PayMongo Hosted Checkout', 400.00, 'Pending', 'cs_5fcc1c90c9e475ac8e186fe1', NULL, 'https://checkout.paymongo.com/5fcc1c90c9e475ac8e186fe1', NULL),
+(5, 17, 'PayMongo Hosted Checkout', 725.00, 'Pending', 'cs_3362999fa4391975ae250df4', NULL, 'https://checkout.paymongo.com/3362999fa4391975ae250df4', NULL);
 
 -- --------------------------------------------------------
 
@@ -300,7 +315,10 @@ CREATE TABLE `transactions` (
 INSERT INTO `transactions` (`transaction_id`, `cashier_id`, `transaction_date`, `total_amount`, `status`) VALUES
 (1, 5, '2026-06-21 09:15:00', 125.00, 'Completed'),
 (2, 5, '2026-06-21 10:30:00', 750.00, 'Completed'),
-(3, 5, '2026-06-21 11:45:00', 400.00, 'Pending');
+(3, 5, '2026-06-21 11:45:00', 400.00, 'Pending'),
+(15, 5, '2026-09-28 13:45:12', 350.00, 'Pending'),
+(16, 6, '2026-09-28 14:03:55', 400.00, 'Pending'),
+(17, 6, '2026-09-28 14:04:27', 725.00, 'Pending');
 
 -- --------------------------------------------------------
 
@@ -331,7 +349,7 @@ INSERT INTO `users` (`user_id`, `first_name`, `last_name`, `profile_picture`, `e
 (3, 'Alice', 'Manager', 'default.jpg', 'manager@store.com', 'manager_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 0, '2026-06-21 08:55:49'),
 (4, 'Bob', 'Custodian', 'default.jpg', 'custodian@store.com', 'custodian_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Custodian', 0, '2026-06-21 08:55:49'),
 (5, 'Charlie', 'Cashier', 'default.jpg', 'cashier@store.com', 'cashier_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Cashier', 0, '2026-06-21 08:55:49'),
-(6, 'John', 'Doe', 'default.jpg', 'customer@store.com', 'customer_user', '$2y$10$7R3vXmG8v79yYg7wX7G4eO6S2K3Xm6N5H9z8Cg7r5F5w2K2U2b2u2', 'Customer', 0, '2026-06-21 08:55:49'),
+(6, 'John', 'Doe', 'default.jpg', 'customer@store.com', 'customer_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Customer', 0, '2026-06-21 08:55:49'),
 (7, 'Llenard Kim', 'Sacdalan', 'hanz.jpg', 'kim.player.unknown@outlook.com', 'hanz', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 0, '2026-07-28 21:58:28'),
 (8, 'vus', 'cus', 'default.jpg', 'lus@gmail.com', 'cus', '$2y$10$mjsmRbCgvxNatTW1BeA0tO8quUsrbcS6UmJ3Y85hRmlKhdS1EHQR2', 'custodian', 0, '2026-07-28 22:04:01');
 
@@ -374,7 +392,8 @@ ALTER TABLE `order_items`
 --
 ALTER TABLE `payments`
   ADD PRIMARY KEY (`payment_id`),
-  ADD KEY `transaction_id` (`transaction_id`);
+  ADD KEY `transaction_id` (`transaction_id`),
+  ADD KEY `idx_payments_paymongo_checkout_session` (`paymongo_checkout_session_id`);
 
 --
 -- Indexes for table `products`
@@ -426,7 +445,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_logs`
 --
 ALTER TABLE `audit_logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `deliveries`
@@ -444,13 +463,13 @@ ALTER TABLE `inventory`
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `payment_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -474,7 +493,7 @@ ALTER TABLE `suppliers`
 -- AUTO_INCREMENT for table `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `transaction_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `users`
