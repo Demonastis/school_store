@@ -1,12 +1,69 @@
 <?php
-// dashboards/admin/modules/users.php
-// Inherits standard database connection $conn from parent admin dashboard shell
-// Assumes a standard session is active for tracking the logged-in administrator
+$current_admin_id = $_SESSION['user_id'] ?? 1; // Pulled from your active admin session keys
 
-// Ensure an admin session context exists; fall back to ID 1 if not defined
-$current_admin_id = $_SESSION['admin_id'] ?? 1;
+// --- A. BATCH ACTIONS MANAGEMENT (POST PROCESSED REGION) ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['bulk_archive'])) {
+    $selected = $_POST['selected_users'] ?? [];
+    $operation_task = $_POST['operation_task'] ?? 'archive'; // Reads our dynamic JS action intent flag
 
-// 1. Process New User Account Provisioning Post Request
+    // Map status requirements dynamically based on operation request intent
+    $target_archive_state = ($operation_task === 'recover') ? 0 : 1;
+    $audit_action_title = ($operation_task === 'recover') ? 'Bulk User Recovery' : 'Bulk User Archival';
+
+    if (!empty($selected)) {
+        $ids = array_map('intval', $selected);
+        // Exclude system root admin (UID #1) as an infrastructure safeguard
+        $ids = array_diff($ids, [1]);
+
+        if (!empty($ids)) {
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $types = str_repeat('i', count($ids));
+
+            $conn->begin_transaction();
+            try {
+                // 1. Bulk Update user status flags in a safe transaction block
+                $stmt = $conn->prepare("
+                    UPDATE users
+                    SET is_archived = ?
+                    WHERE user_id IN ($placeholders)
+                ");
+
+                // Merge variables to bind both target status value and array parameters securely
+                $bind_params = array_merge([$target_archive_state], $ids);
+                $bind_types = 'i' . $types;
+
+                $stmt->bind_param($bind_types, ...$bind_params);
+                $stmt->execute();
+                $stmt->close();
+
+                // 2. Append event timeline details straight to the audit logs
+                $csv_affected_profiles = implode(', ', $ids);
+                $audit_desc = "Admin batch processed a '{$operation_task}' operation targeting User IDs: [{$csv_affected_profiles}].";
+
+                $audit_stmt = $conn->prepare("INSERT INTO audit_logs (user_id, action, module, description) VALUES (?, ?, 'User Management Module', ?)");
+                $audit_stmt->bind_param("iss", $current_admin_id, $audit_action_title, $audit_desc);
+                $audit_stmt->execute();
+                $audit_stmt->close();
+
+                $conn->commit();
+
+                $alert_msg = ($operation_task === 'recover') ? '✓ Selected profiles successfully restored to active lists.' : '✓ Selected profiles successfully moved into archival indices.';
+                echo "<div class='alert alert-success alert-dismissible fade show border-0 shadow-sm' role='alert'>
+                        {$alert_msg}
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                      </div>";
+            } catch (Exception $e) {
+                $conn->rollback();
+                echo "<div class='alert alert-danger alert-dismissible fade show border-0 shadow-sm' role='alert'>
+                        ✕ Processing Error: " . htmlspecialchars($e->getMessage()) . "
+                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+                      </div>";
+            }
+        }
+    }
+}
+
+// --- B. USER CREATION HANDLER ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user_action'])) {
     $first_name = trim($_POST['first_name'] ?? '');
     $last_name  = trim($_POST['last_name'] ?? '');
@@ -17,30 +74,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user_action'])
 
     $conn->begin_transaction();
     try {
-        // Validate all required inputs are present
         if (empty($first_name) || empty($last_name) || empty($email) || empty($username) || empty($raw_pass) || empty($role)) {
-            throw new Exception("Security Constraint Violated: All profile directory fields are strictly mandatory.");
+            throw new Exception("All profile directory fields are strictly mandatory.");
         }
 
-        // Securely hash raw passwords using standard industry bcrypt cryptographic encryption
         $password_hash = password_hash($raw_pass, PASSWORD_BCRYPT);
 
-        // Validation: Verify uniqueness of username and email to prevent system collisions
         $check_stmt = $conn->prepare("SELECT user_id FROM users WHERE username = ? OR email = ?");
         $check_stmt->bind_param("ss", $username, $email);
         $check_stmt->execute();
         if ($check_stmt->get_result()->num_rows > 0) {
-            throw new Exception("Account provisioning blocked: Username or email identifier already registered.");
+            throw new Exception("Username or email identifier already registered.");
         }
         $check_stmt->close();
 
-        // Insert new user into the directory
         $insert_stmt = $conn->prepare("INSERT INTO users (first_name, last_name, email, username, password_hash, role, is_archived) VALUES (?, ?, ?, ?, ?, ?, 0)");
         $insert_stmt->bind_param("ssssss", $first_name, $last_name, $email, $username, $password_hash, $role);
         $insert_stmt->execute();
         $insert_stmt->close();
 
-        // Log the account creation into global audit logs table using the current admin's session ID
         $audit_desc = "Admin provisioned a new user profile account for {$first_name} {$last_name} (Username: '{$username}', Role: '{$role}').";
         $audit_stmt = $conn->prepare("INSERT INTO audit_logs (user_id, action, module, description) VALUES (?, 'Create User', 'Admin Directory Module', ?)");
         $audit_stmt->bind_param("is", $current_admin_id, $audit_desc);
@@ -48,60 +100,130 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user_action'])
         $audit_stmt->close();
 
         $conn->commit();
-        echo "<div style='padding:15px; margin-bottom:20px; background:#d1e7dd; color:#0f5132; border-radius:4px; font-weight:500;'>✓ New security user context successfully added to active directory indices.</div>";
+        echo "<div class='alert alert-success alert-dismissible fade show border-0 shadow-sm' role='alert'>
+                ✓ New security user context successfully added to active directory indices.
+                <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+              </div>";
     } catch (Exception $e) {
         $conn->rollback();
-        echo "<div style='padding:15px; margin-bottom:20px; background:#f8d7da; color:#721c24; border-radius:4px; font-weight:500;'>✕ Creation Error: " . htmlspecialchars($e->getMessage()) . "</div>";
+        echo "<div class='alert alert-danger alert-dismissible fade show border-0 shadow-sm' role='alert'>
+                ✕ Creation Error: " . htmlspecialchars($e->getMessage()) . "
+                <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+              </div>";
     }
 }
 
-// 2. Process User Archiving Request (FIXED: Added missing backend logic)
-if (isset($_GET['archive_user_id'])) {
-    $archive_id = (int)$_GET['archive_user_id'];
-    
-    $conn->begin_transaction();
-    try {
-        // Prevent archiving the core system master root administrator
-        if ($archive_id === 1) {
-            throw new Exception("Security Constraint Violated: Primary Root Master profile cannot be decommissioned.");
-        }
+// --- C. DYNAMIC FILTERS AND PAGINATION ENGINE MANAGEMENT ---
+$search  = isset($_GET['search']) ? trim($_GET['search']) : '';
+$role    = isset($_GET['role']) ? trim($_GET['role']) : '';
+$status  = isset($_GET['status']) ? trim($_GET['status']) : '';
+$archive = isset($_GET['archive']) ? trim($_GET['archive']) : '0'; // Defaults nicely to active view states
 
-        // Fetch user data before archiving for audit trail context tracking
-        $user_stmt = $conn->prepare("SELECT first_name, last_name, username FROM users WHERE user_id = ?");
-        $user_stmt->bind_param("i", $archive_id);
-        $user_stmt->execute();
-        $user_res = $user_stmt->get_result()->fetch_assoc();
-        $user_stmt->close();
+$limit = 10;
+$page_num = isset($_GET['p']) && is_numeric($_GET['p']) ? (int)$_GET['p'] : 1;
+if ($page_num < 1) {
+    $page_num = 1;
+}
+$offset = ($page_num - 1) * $limit;
 
-        if ($user_res) {
-            // Flag record as archived instead of hard-deleting
-            $archive_stmt = $conn->prepare("UPDATE users SET is_archived = 1 WHERE user_id = ?");
-            $archive_stmt->bind_param("i", $archive_id);
-            $archive_stmt->execute();
-            $archive_stmt->close();
+// --- 1. RUN LIGHTWEIGHT COUNT QUERY FIRST ---
+$count_sql = "SELECT COUNT(*) as total FROM users WHERE 1=1";
+$count_params = [];
+$count_types = '';
 
-            // Log the decommission action to compliance data arrays
-            $audit_desc = "Admin archived and disabled active user directory access for user: {$user_res['first_name']} {$user_res['last_name']} (Username: '{$user_res['username']}').";
-            $audit_stmt = $conn->prepare("INSERT INTO audit_logs (user_id, action, module, description) VALUES (?, 'Archive User', 'Admin Directory Module', ?)");
-            $audit_stmt->bind_param("is", $current_admin_id, $audit_desc);
-            $audit_stmt->execute();
-            $audit_stmt->close();
-
-            $conn->commit();
-            echo "<div style='padding:15px; margin-bottom:20px; background:#d1e7dd; color:#0f5132; border-radius:4px; font-weight:500;'>✓ User registry profile safely archived and stripped of application endpoint route clearance.</div>";
-        } else {
-            throw new Exception("Targeted directory profile record index entry could not be resolved.");
-        }
-    } catch (Exception $e) {
-        $conn->rollback();
-        echo "<div style='padding:15px; margin-bottom:20px; background:#f8d7da; color:#721c24; border-radius:4px; font-weight:500;'>✕ Archiving Error: " . htmlspecialchars($e->getMessage()) . "</div>";
-    }
+if ($archive !== '') {
+    $count_sql .= " AND is_archived = ?";
+    $count_params[] = (int)$archive;
+    $count_types .= 'i';
+}
+if ($role !== '') {
+    $count_sql .= " AND role = ?";
+    $count_params[] = $role;
+    $count_types .= 's';
+}
+if ($status !== '') {
+    $count_sql .= " AND approval_status = ?";
+    $count_params[] = $status;
+    $count_types .= 's';
+}
+if ($search !== '') {
+    $count_sql .= " AND (first_name LIKE ? OR last_name LIKE ? OR username LIKE ? OR email LIKE ?)";
+    $term = "%{$search}%";
+    array_push($count_params, $term, $term, $term, $term);
+    $count_types .= 'ssss';
 }
 
-// 3. Fetch Active, Non-Archived User Profiles for Display Matrix Data
-$users_query = "SELECT user_id, first_name, last_name, email, username, role, created_at FROM users WHERE is_archived = 0 ORDER BY role ASC, last_name ASC";
-$users_result = $conn->query($users_query);
+$count_stmt = $conn->prepare($count_sql);
+if (!empty($count_params)) {
+    $count_stmt->bind_param($count_types, ...$count_params);
+}
+$count_stmt->execute();
+$total_rows = $count_stmt->get_result()->fetch_assoc()['total'];
+$count_stmt->close();
+
+$total_pages = ceil($total_rows / $limit);
+if ($total_pages < 1) {
+    $total_pages = 1;
+}
+
+// --- 2. BUILD AND COMPILE COMPACT MAIN SELECTION STRING ---
+$sql = "
+SELECT
+    user_id,
+    first_name,
+    last_name,
+    email,
+    username,
+    role,
+    approval_status,
+    is_archived,
+    created_at
+FROM users
+WHERE 1=1
+";
+
+$params = [];
+$types  = '';
+
+if ($archive !== '') {
+    $sql .= " AND is_archived = ?";
+    $params[] = (int)$archive;
+    $types .= 'i';
+}
+if ($role !== '') {
+    $sql .= " AND role = ?";
+    $params[] = $role;
+    $types .= 's';
+}
+if ($status !== '') {
+    $sql .= " AND approval_status = ?";
+    $params[] = $status;
+    $types .= 's';
+}
+if ($search !== '') {
+    $sql .= " AND (first_name LIKE ? OR last_name LIKE ? OR username LIKE ? OR email LIKE ?)";
+    $term = "%{$search}%";
+    array_push($params, $term, $term, $term, $term);
+    $types .= 'ssss';
+}
+
+$sql .= " ORDER BY last_name ASC";
+
+// SECURELY ATTACH LIMIT CRITERIAS RIGHT BEFORE CONTEXT COMPILATION PREPARATION
+$sql .= " LIMIT ? OFFSET ?";
+$params[] = $limit;
+$params[] = $offset;
+$types .= 'ii';
+
+// Execute prepared query safely
+$stmt = $conn->prepare($sql);
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+}
+$stmt->execute();
+$users_result = $stmt->get_result(); // Safely targets your data <tbody> rendering context
 ?>
+
 
 <div class="user-management-module" style="background: white; padding: 25px; border-radius: 8px; border: 1px solid #e0e0e0; font-family: system-ui, -apple-system, sans-serif;">
     <!-- Top Action Context Element Line Layout -->
@@ -113,117 +235,323 @@ $users_result = $conn->query($users_query);
         <button onclick="document.getElementById('userCreationModal').style.display='flex';" style="background: #2563eb; color: white; border: none; padding: 10px 18px; font-size: 0.85rem; font-weight: bold; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
             👤 Provision New User
         </button>
+
+    </div>
+    <div class="user-toolbar">
+
+        <div class="card border-0 shadow-sm mb-4 bg-light">
+            <div class="card-body p-3">
+                <form method="GET" id="filterForm" class="row g-2 align-items-end">
+                    <input type="hidden" name="page" value="users">
+
+                    <div class="col-12 col-md-4 col-lg-3">
+                        <label class="form-label small fw-bold text-secondary text-uppercase mb-1">Search Directory</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white text-muted border-end-0">
+                                <svg xmlns="http://w3.org" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                                </svg>
+                            </span>
+                            <input
+                                type="text"
+                                name="search"
+                                class="form-control form-control-sm border-start-0"
+                                placeholder="Search name, email, username"
+                                value="<?= htmlspecialchars($search) ?>">
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-sm-4 col-md-2 col-lg-2">
+                        <label class="form-label small fw-bold text-secondary text-uppercase mb-1">Role Filter</label>
+                        <select name="role" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">All Roles</option>
+                            <option value="Admin" <?= ($role === 'Admin') ? 'selected' : '' ?>>Admin</option>
+                            <option value="Manager" <?= ($role === 'Manager') ? 'selected' : '' ?>>Manager</option>
+                            <option value="Custodian" <?= ($role === 'Custodian') ? 'selected' : '' ?>>Custodian</option>
+                            <option value="Cashier" <?= ($role === 'Cashier') ? 'selected' : '' ?>>Cashier</option>
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-sm-4 col-md-2 col-lg-2">
+                        <label class="form-label small fw-bold text-secondary text-uppercase mb-1">Archive State</label>
+                        <select name="archive" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="0" <?= ($archive === '0') ? 'selected' : '' ?>>Active</option>
+                            <option value="1" <?= ($archive === '1') ? 'selected' : '' ?>>Archived</option>
+                            <option value="" <?= ($archive === '') ? 'selected' : '' ?>>All</option>
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-sm-4 col-md-2 col-lg-2">
+                        <label class="form-label small fw-bold text-secondary text-uppercase mb-1">Status</label>
+                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="" <?= ($status === '') ? 'selected' : '' ?>>All Status</option>
+                            <option value="pending" <?= ($status === 'pending') ? 'selected' : '' ?>>Pending</option>
+                            <option value="approved" <?= ($status === 'approved') ? 'selected' : '' ?>>Approved</option>
+                            <option value="rejected" <?= ($status === 'rejected') ? 'selected' : '' ?>>Rejected</option>
+                        </select>
+                    </div>
+
+                    <div class="col-6 col-sm-12 col-md-2 col-lg-3 d-flex gap-1">
+                        <button type="submit" class="btn btn-sm btn-primary w-100 fw-medium">
+                            Search
+                        </button>
+                        <a href="admin_dashboard.php?page=users" class="btn btn-sm btn-outline-secondary px-3" title="Clear Filters">
+                            Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+
+        </div>
+
+
+
     </div>
 
-    <!-- Active User Database Matrix Data Table Loop -->
+
     <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
         <thead>
-            <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                <th style="padding: 12px; color: #475569;">Full Profile Name</th>
-                <th style="padding: 12px; color: #475569;">Account Credentials</th>
-                <th style="padding: 12px; color: #475569;">Network Email Address</th>
-                <th style="padding: 12px; color: #475569;">System Access Authorization Role</th>
-                <th style="padding: 12px; color: #475569;">Registry Timestamp</th>
-                <th style="padding: 12px; text-align: right; color: #475569;">Directory Management Actions</th>
+            <tr style="
+    background:#f8fafc;
+    border-bottom:2px solid #e2e8f0;
+">
+                <th width="40">
+                    <input type="checkbox" id="checkAll">
+                </th>
+
+                <th>User</th>
+
+                <th>Role</th>
+
+                <th>Approval Status</th>
+
+                <th>Record Status</th>
+
+                <th>Created</th>
+
             </tr>
         </thead>
         <tbody>
+
             <?php if ($users_result->num_rows === 0): ?>
+
                 <tr>
-                    <td colspan="6" style="padding: 24px; text-align: center; color: #868e96; font-style: italic;">No active accounts matching directory index scope rules.</td>
+
+                    <td colspan="6"
+                        style="padding:30px; text-align:center; color:#94a3b8;">
+                        No users found.
+                    </td>
                 </tr>
+
             <?php else: ?>
+
                 <?php while ($user = $users_result->fetch_assoc()): ?>
-                    <tr style="border-bottom: 1px solid #e9ecef; transition: background 0.15s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='transparent'">
-                        <td style="padding: 12px; font-weight: 500; color: #1e293b;">
-                            <?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?>
-                            <span style="display:block; font-size:0.75rem; color:#94a3b8;">UID: #USER-<?= $user['user_id'] ?></span>
+
+
+                    <tr class="user-row"
+                        style="
+                    border-bottom:1px solid #e2e8f0;
+                    transition:.15s;
+                    <?= ((int)$user['is_archived'] === 1) ? 'background-color: #f8fafc; opacity: 0.65;' : '' ?>
+                ">
+
+                        <td style="padding:12px;">
+                            <?php if ((int)$user['user_id'] !== 1): ?>
+                                <input
+                                    type="checkbox"
+                                    class="user-check"
+                                    name="selected_users[]"
+                                    value="<?= $user['user_id'] ?>">
+                            <?php endif; ?>
                         </td>
-                        <td style="padding: 12px; font-family: monospace; color: #475569;"><?= htmlspecialchars($user['username']) ?></td>
-                        <td style="padding: 12px; color: #475569;"><?= htmlspecialchars($user['email']) ?></td>
-                        <td style="padding: 12px;">
-                            <?php 
-                            $role_tint = '#64748b';
-                            if ($user['role'] === 'Admin') $role_tint = '#dc2626';
-                            if ($user['role'] === 'Manager') $role_tint = '#2563eb';
-                            if ($user['role'] === 'Custodian') $role_tint = '#d97706';
-                            if ($user['role'] === 'Cashier') $role_tint = '#059669';
+
+                        <td style="padding:12px;">
+                            <div style="display:flex; align-items:flex-start; gap:12px;">
+                                <div style="
+                            width:42px;
+                            height:42px;
+                            border-radius:50%;
+                            background:#e2e8f0;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            font-weight:bold;
+                            color:#475569;
+                            flex-shrink:0;
+                        ">
+                                    <?= strtoupper(substr($user['first_name'], 0, 1)) ?>
+                                </div>
+
+                                <div>
+                                    <div style="font-weight:600; color:#0f172a;">
+                                        <?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?>
+                                    </div>
+
+                                    <div style="font-size:.8rem; color:#64748b;">
+                                        @<?= htmlspecialchars($user['username']) ?>
+                                    </div>
+
+                                    <div style="font-size:.8rem; color:#94a3b8;">
+                                        <?= htmlspecialchars($user['email']) ?>
+                                    </div>
+
+                                    <div style="font-size:.75rem; color:#cbd5e1;">
+                                        UID #<?= $user['user_id'] ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td style="padding:12px;">
+                            <?php
+                            $roleColor = '#64748b';
+                            switch ($user['role']) {
+                                case 'Admin':
+                                    $roleColor = '#dc2626';
+                                    break;
+                                case 'Manager':
+                                    $roleColor = '#2563eb';
+                                    break;
+                                case 'Custodian':
+                                    $roleColor = '#d97706';
+                                    break;
+                                case 'Cashier':
+                                    $roleColor = '#059669';
+                                    break;
+                            }
                             ?>
-                            <span style="background: <?= $role_tint ?>; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <span style="background:<?= $roleColor ?>; color:white; padding:4px 10px; border-radius:999px; font-size:.75rem; font-weight:600;">
                                 <?= htmlspecialchars($user['role']) ?>
                             </span>
                         </td>
-                        <td style="padding: 12px; color: #64748b;"><?= date('M d, Y', strtotime($user['created_at'])) ?></td>
-                        <td style="padding: 12px; text-align: right;">
-                                                        <?php if ($user['user_id'] != 1): ?>
-                                <a href="admin_dashboard.php?page=users&archive_user_id=<?= $user['user_id'] ?>" onclick="return confirm('Confirm deactivation? This profile context will be completely removed from active login endpoints.');" style="background: #ef4444; color: white; border: none; padding: 6px 12px; font-size: 0.8rem; font-weight: bold; border-radius: 4px; text-decoration: none; display: inline-block; cursor: pointer;">
-                                    🗄️ Archive User
-                                </a>
+
+                        <td style="padding:12px;">
+                            <?php
+                            $status = strtolower($user['approval_status']);
+                            $statusColor = '#f59e0b';
+                            if ($status === 'approved') {
+                                $statusColor = '#16a34a';
+                            }
+                            if ($status === 'rejected') {
+                                $statusColor = '#dc2626';
+                            }
+                            ?>
+                            <span style="background:<?= $statusColor ?>15; color:<?= $statusColor ?>; border:1px solid <?= $statusColor ?>30; padding:4px 10px; border-radius:999px; font-size:.75rem; font-weight:600;">
+                                <?= ucfirst($status) ?>
+                            </span>
+                        </td>
+
+                        <td style="padding:12px;">
+                            <?php if ((int)$user['is_archived'] === 1): ?>
+                                <span style="background:#ef444420; color:#dc2626; border:1px solid #ef444440; padding:4px 10px; border-radius:999px; font-size:.75rem; font-weight:600; white-space:nowrap;">
+                                    📦 Archived
+                                </span>
                             <?php else: ?>
-                                <small style="color: #cbd5e1; font-style: italic;">Primary Root Master Locked</small>
+                                <span style="background:#22c55e15; color:#16a34a; border:1px solid #22c55e30; padding:4px 10px; border-radius:999px; font-size:.75rem; font-weight:600; white-space:nowrap;">
+                                    🟢 Active
+                                </span>
                             <?php endif; ?>
                         </td>
+
+                        <td style="padding:12px; color:#64748b; white-space:nowrap;">
+                            <?= date('M d, Y', strtotime($user['created_at'])) ?>
+                        </td>
+
                     </tr>
+
                 <?php endwhile; ?>
+
             <?php endif; ?>
+
         </tbody>
+
     </table>
-</div>
+    <?php
+    // Build query string parameter persistence to pass filters through page changes safely
+    $url_query = $_GET;
+    unset($url_query['p']); // Drop page index context before appending new parameters
+    $query_string = http_build_query($url_query);
+    $base_url = "admin_dashboard.php?" . ($query_string ? $query_string . "&" : "");
+    ?>
 
-<!-- Modal Dialog Box Container for Provisioning Forms Execution -->
-<div id="userCreationModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); align-items: center; justify-content: center; z-index: 9999;">
-    <div style="background: white; border-radius: 8px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); overflow: hidden; font-family: system-ui, -apple-system, sans-serif;">
-        <!-- Modal Header Layout -->
-        <div style="padding: 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-            <h4 style="margin: 0; font-size: 1.1rem; font-weight: 600; color: #0f172a;">Account Provisioning Form Wizard</h4>
-            <button onclick="document.getElementById('userCreationModal').style.display='none';" style="background: none; border: none; font-size: 1.25rem; color: #94a3b8; cursor: pointer;">&times;</button>
+    <div class="d-flex justify-content-between align-items-center mt-3 bg-white p-3 rounded border border-light shadow-sm">
+        <!-- Records Counter Metrics Text -->
+        <div class="small text-secondary">
+            Showing records <strong><?= min($offset + 1, $total_rows) ?></strong> to <strong><?= min($offset + $limit, $total_rows) ?></strong> of <strong><?= $total_rows ?></strong> matching user accounts.
         </div>
-        
-        <!-- Modal Form Body Context -->
-        <form method="POST" style="margin: 0; padding: 20px;">
-            <input type="hidden" name="create_user_action" value="1">
-            
-            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                <div style="flex: 1;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 6px;">First Name *</label>
-                    <input type="text" name="first_name" required style="width: 100%; box-sizing: border-box; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
-                </div>
-                <div style="flex: 1;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 6px;">Last Name *</label>
-                    <input type="text" name="last_name" required style="width: 100%; box-sizing: border-box; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
-                </div>
-            </div>
 
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 6px;">Network Email Address *</label>
-                <input type="email" name="email" required style="width: 100%; box-sizing: border-box; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
-            </div>
+        <!-- Bootstrap 5 Navigation Buttons -->
+        <?php if ($total_pages > 1): ?>
+            <nav aria-label="Table page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    <!-- Previous Button Block -->
+                    <li class="page-item <?= ($page_num <= 1) ? 'disabled' : '' ?>">
+                        <a class="page-item page-link border text-dark" href="<?= $base_url ?>p=<?= $page_num - 1 ?>">Previous</a>
+                    </li>
 
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 6px;">System Username *</label>
-                <input type="text" name="username" required style="width: 100%; box-sizing: border-box; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
-            </div>
+                    <!-- Individual Numerical Page Blocks Loop -->
+                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                        <li class="page-item <?= ($page_num === $i) ? 'active' : '' ?>">
+                            <a class="page-link border <?= ($page_num === $i) ? 'bg-dark border-dark text-white' : 'text-dark bg-white' ?>" href="<?= $base_url ?>p=<?= $i ?>"><?= $i ?></a>
+                        </li>
+                    <?php endfor; ?>
 
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 6px;">Access Password *</label>
-                <input type="password" name="password" required style="width: 100%; box-sizing: border-box; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.9rem;">
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 6px;">System Access Authorization Role *</label>
-                <select name="role" required style="width: 100%; box-sizing: border-box; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; background: white; font-size: 0.9rem;">
-                    <option value="Cashier">Cashier</option>
-                    <option value="Custodian">Custodian</option>
-                    <option value="Manager">Manager</option>
-                    <option value="Admin">Admin</option>
-                </select>
-            </div>
-
-            <!-- Form Action Triggers -->
-            <div style="display: flex; justify-content: flex-end; gap: 10px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-                <button type="button" onclick="document.getElementById('userCreationModal').style.display='none';" style="background: white; color: #475569; border: 1px solid #cbd5e1; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; border-radius: 4px; cursor: pointer;">Cancel</button>
-                <button type="submit" style="background: #2563eb; color: white; border: none; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; border-radius: 4px; cursor: pointer;">Execute Provisioning Process</button>
-            </div>
-        </form>
+                    <!-- Next Button Block -->
+                    <li class="page-item <?= ($page_num >= $total_pages) ? 'disabled' : '' ?>">
+                        <a class="page-item page-link border text-dark" href="<?= $base_url ?>p=<?= $page_num + 1 ?>">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        <?php endif; ?>
     </div>
+    <div style="margin-top:15px">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+
+            <!-- Left Side: Batch Management Actions -->
+            <div class="d-flex flex-wrap gap-2">
+                <!-- Open Approval Center -->
+                <button type="button" id="btnApprovalCenter" class="btn btn-primary d-inline-flex align-items-center gap-2 shadow-sm">
+                    <span>⚡</span> Open Approval Center
+                    <span class="badge bg-white text-primary rounded-pill shadow-inner" id="selectedCount">0</span>
+                </button>
+
+                <!-- SMART ACTION BUTTON: Switches between Archive and Recover based on filter state -->
+                <?php if ($archive === '1'): ?>
+                    <!-- Recover Selected Button Configuration -->
+                    <button type="button" id="btnBulkArchive" data-action="recover" class="btn btn-outline-success d-inline-flex align-items-center gap-2">
+                        <svg xmlns="http://w3.org" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z" />
+                            <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.445 2.218a.25.25 0 0 0 0 .384l2.146 1.876a.25.25 0 0 0 .41-.192z" />
+                        </svg>
+                        Recover Selected
+                    </button>
+                <?php else: ?>
+                    <!-- Standard Archive Selected Button Configuration -->
+                    <button type="button" id="btnBulkArchive" data-action="archive" class="btn btn-outline-danger d-inline-flex align-items-center gap-2">
+                        <svg xmlns="http://w3.org" width="16" height="16" fill="currentColor" class="bi bi-archive-fill" viewBox="0 0 16 16">
+                            <path d="M12.643 15C13.979 15 15 13.845 15 12.5V5H1v7.5C1 13.845 2.021 15 3.357 15zM5.5 7h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M.8 1a.8.8 0 0 0-.8.8V3a.8.8 0 0 0 .8.8h14.4A.8.8 0 0 0 16 3V1.8a.8.8 0 0 0-.8-.8z" />
+                        </svg>
+                        Archive Selected
+                    </button>
+                <?php endif; ?>
+            </div>
+
+            <!-- Right Side: Role Assignment -->
+            <div>
+                <button type="button" id="btnRoleAssignment" class="btn btn-dark d-inline-flex align-items-center gap-2 shadow-sm">
+                    <svg xmlns="http://w3.org" width="16" height="16" fill="currentColor" class="bi bi-person-gear" viewBox="0 0 16 16">
+                        <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 1 0 4m.002 6a4.99 4.99 0 0 1 2.148-1.52A5.02 5.02 0 0 0 8 10a5 5 0 0 0-5 5v1h4v-1a.5.5 0 0 1 .002-.12M16 12.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0m-3.5-2a.5.5 0 0 0-.5.5v1.5a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 0-1h-1.5V11a.5.5 0 0 0-.5-.5" />
+                    </svg>
+                    Role Assignment
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+
+
 </div>
+
+<?php include("userCreationModal.php"); ?>
