@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 04, 2026 at 01:24 PM
+-- Generation Time: Oct 06, 2026 at 05:05 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -70,7 +70,40 @@ INSERT INTO `audit_logs` (`log_id`, `user_id`, `action`, `module`, `description`
 (30, 1, 'Restore User', 'Admin Archive Module', 'Admin restored archived user profile ID #USER-5 back to active directory status.', '2026-08-28 09:25:02'),
 (31, 5, 'Create Payment Checkout', 'PayMongo Payment Module', 'Customer Charlie Cashier created PayMongo checkout for order #TXN-15 valued at ₱350.00. Payment is pending.', '2026-09-28 13:45:12'),
 (32, 6, 'Create Payment Checkout', 'PayMongo Payment Module', 'Customer John Doe created PayMongo checkout for order #TXN-16 valued at ₱400.00. Payment is pending.', '2026-09-28 14:03:56'),
-(33, 6, 'Create Payment Checkout', 'PayMongo Payment Module', 'Customer John Doe created PayMongo checkout for order #TXN-17 valued at ₱725.00. Payment is pending.', '2026-09-28 14:04:28');
+(33, 6, 'Create Payment Checkout', 'PayMongo Payment Module', 'Customer John Doe created PayMongo checkout for order #TXN-17 valued at ₱725.00. Payment is pending.', '2026-09-28 14:04:28'),
+(34, 1, 'Assign Role', 'Admin Directory Module', 'Admin changed role for Charlie Cashier (Username: \'cashier_user\') from \'Cashier\' to \'Manager\'.', '2026-10-05 02:38:50'),
+(35, 1, 'Assign Role', 'Admin Directory Module', 'Admin changed role for Charlie Cashier (Username: \'cashier_user\') from \'Manager\' to \'Cashier\'.', '2026-10-05 02:38:52'),
+(36, 1, 'Assign Role', 'Admin Directory Module', 'Admin changed role for Charlie Cashier (Username: \'cashier_user\') from \'Cashier\' to \'Admin\'.', '2026-10-05 02:39:15'),
+(37, 1, 'Assign Role', 'Admin Directory Module', 'Admin changed role for Charlie Cashier (Username: \'cashier_user\') from \'Admin\' to \'Cashier\'.', '2026-10-05 02:39:18'),
+(38, 1, 'Revoke User Approval', 'Admin Directory Module', 'Admin changed approval status for vus cus (Username: \'cus\') to Pending.', '2026-10-05 02:39:27'),
+(39, 1, 'Approve User', 'Admin Directory Module', 'Admin changed approval status for vus cus (Username: \'cus\') to Approved.', '2026-10-05 02:39:28'),
+(40, 1, 'Revoke User Approval', 'User Approval Module', 'Admin changed approval for System Admin (@admin_user) to Pending.', '2026-10-05 02:56:31'),
+(41, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for System Admin (@admin_user) to Approved.', '2026-10-05 02:56:33'),
+(42, 1, 'Assign Role', 'Role Assignment Module', 'Admin changed Charlie Cashier (@cashier_user) from Cashier to Custodian.', '2026-10-05 19:49:13'),
+(43, 1, 'Assign Role', 'Role Assignment Module', 'Admin changed Store Owner (@owner_user) from Owner to Manager.', '2026-10-05 19:49:31'),
+(44, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for System Admin (@admin_user) to Approved.', '2026-10-05 19:49:43'),
+(45, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for System Admin (@admin_user) to Approved.', '2026-10-05 19:49:44'),
+(46, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for System Admin (@admin_user) to Approved.', '2026-10-05 19:49:45'),
+(47, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for System Admin (@admin_user) to Approved.', '2026-10-05 19:49:45'),
+(48, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for Charlie Cashier (@cashier_user) to Approved.', '2026-10-05 19:49:50'),
+(49, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for vus cus (@cus) to Approved.', '2026-10-05 19:49:52'),
+(50, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for Bob Custodian (@custodian_user) to Approved.', '2026-10-05 19:49:56'),
+(51, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for Bob Custodian (@custodian_user) to Approved.', '2026-10-05 19:49:59'),
+(52, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for Alice Manager (@manager_user) to Approved.', '2026-10-05 19:50:02'),
+(53, 1, 'Create User', 'Admin Directory Module', 'Admin provisioned a new user profile account for ss sses (Username: \'sses\', Role: \'Cashier\').', '2026-10-05 20:30:26'),
+(54, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for John Doe (@customer_user) to Approved.', '2026-10-05 20:33:44'),
+(55, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for John Doe (@customer_user) to Approved.', '2026-10-05 20:39:43'),
+(56, 1, 'Approve User', 'User Approval Module', 'Admin changed approval for John Doe (@customer_user) to Approved.', '2026-10-05 20:39:47'),
+(57, 1, 'User account Rejected', 'User Management', 'Admin ID 1 changed account registration lifecycle status of User ID 9 to \'rejected\'.', '2026-10-05 21:44:18'),
+(58, 1, 'User account Approved', 'User Management', 'Admin ID 1 changed account registration lifecycle status of User ID 9 to \'approved\'.', '2026-10-05 21:44:26'),
+(59, 1, 'Assign Role', 'Role Assignment Module', 'Admin changed Charlie Cashier (@cashier_user) from Custodian to Manager.', '2026-10-05 21:45:24'),
+(60, 1, 'Bulk User Archival', 'User Management', 'Admin ID 1 batch-archived accounts for User IDs: [9].', '2026-10-05 22:25:26'),
+(61, 1, 'Bulk User Archival', 'User Management', 'Admin ID 1 batch-archived accounts for User IDs: [9].', '2026-10-05 22:26:16'),
+(62, 1, 'Bulk User Recovery', 'User Manamentge', 'Admin ID 1 executed a [recover] operation for User IDs: [9].', '2026-10-05 22:43:56'),
+(63, 1, 'Bulk User Archival', 'User Manamentge', 'Admin ID 1 executed a [archive] operation for User IDs: [9].', '2026-10-05 22:53:45'),
+(64, 1, 'Bulk User Archival', 'User Manamentge', 'Admin ID 1 executed a [archive] operation for User IDs: [28].', '2026-10-05 23:01:47'),
+(65, 1, 'Bulk User Archival', 'User Manamentge', 'Admin ID 1 executed a [archive] operation for User IDs: [15].', '2026-10-05 23:02:06'),
+(66, 1, 'Bulk User Archival', 'User Manamentge', 'Admin ID 1 executed a [archive] operation for User IDs: [12, 20, 17, 11, 27].', '2026-10-05 23:02:43');
 
 -- --------------------------------------------------------
 
@@ -336,6 +369,9 @@ CREATE TABLE `users` (
   `password_hash` varchar(255) NOT NULL,
   `role` varchar(20) NOT NULL,
   `is_archived` tinyint(1) NOT NULL DEFAULT 0,
+  `approval_status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  `approved_by` int(11) DEFAULT NULL,
+  `approved_at` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -343,15 +379,36 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `first_name`, `last_name`, `profile_picture`, `email`, `username`, `password_hash`, `role`, `is_archived`, `created_at`) VALUES
-(1, 'System', 'Admin', 'default.jpg', 'admin@store.com', 'admin_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Admin', 0, '2026-06-21 08:55:49'),
-(2, 'Store', 'Owner', 'default.jpg', 'owner@store.com', 'owner_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Owner', 0, '2026-06-21 08:55:49'),
-(3, 'Alice', 'Manager', 'default.jpg', 'manager@store.com', 'manager_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 0, '2026-06-21 08:55:49'),
-(4, 'Bob', 'Custodian', 'default.jpg', 'custodian@store.com', 'custodian_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Custodian', 0, '2026-06-21 08:55:49'),
-(5, 'Charlie', 'Cashier', 'default.jpg', 'cashier@store.com', 'cashier_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Cashier', 0, '2026-06-21 08:55:49'),
-(6, 'John', 'Doe', 'default.jpg', 'customer@store.com', 'customer_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Customer', 0, '2026-06-21 08:55:49'),
-(7, 'Llenard Kim', 'Sacdalan', 'hanz.jpg', 'kim.player.unknown@outlook.com', 'hanz', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 0, '2026-07-28 21:58:28'),
-(8, 'vus', 'cus', 'default.jpg', 'lus@gmail.com', 'cus', '$2y$10$mjsmRbCgvxNatTW1BeA0tO8quUsrbcS6UmJ3Y85hRmlKhdS1EHQR2', 'custodian', 0, '2026-07-28 22:04:01');
+INSERT INTO `users` (`user_id`, `first_name`, `last_name`, `profile_picture`, `email`, `username`, `password_hash`, `role`, `is_archived`, `approval_status`, `approved_by`, `approved_at`, `created_at`) VALUES
+(1, 'System', 'Admin', 'default.jpg', 'admin@store.com', 'admin_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Admin', 0, 'approved', 1, '2026-10-05 19:49:45', '2026-06-21 08:55:49'),
+(2, 'Store', 'Owner', 'default.jpg', 'owner@store.com', 'owner_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 0, 'approved', 1, '2026-06-21 08:55:49', '2026-06-21 08:55:49'),
+(3, 'Alice', 'Manager', 'default.jpg', 'manager@store.com', 'manager_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 0, 'approved', 1, '2026-10-05 19:50:02', '2026-06-21 08:55:49'),
+(4, 'Bob', 'Custodian', 'default.jpg', 'custodian@store.com', 'custodian_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Custodian', 0, 'approved', 1, '2026-10-05 19:49:59', '2026-06-21 08:55:49'),
+(5, 'Charlie', 'Cashier', 'default.jpg', 'cashier@store.com', 'cashier_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 0, 'approved', 1, '2026-10-05 19:49:50', '2026-06-21 08:55:49'),
+(6, 'John', 'Doe', 'default.jpg', 'customer@store.com', 'customer_user', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Customer', 0, 'approved', 1, '2026-10-05 20:39:47', '2026-06-21 08:55:49'),
+(7, 'Llenard Kim', 'Sacdalan', 'hanz.jpg', 'kim.player.unknown@outlook.com', 'hanz', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 0, 'approved', 1, '2026-07-28 21:58:28', '2026-07-28 21:58:28'),
+(8, 'vus', 'cus', 'default.jpg', 'lus@gmail.com', 'cus', '$2y$10$mjsmRbCgvxNatTW1BeA0tO8quUsrbcS6UmJ3Y85hRmlKhdS1EHQR2', 'custodian', 0, 'approved', 1, '2026-10-05 19:49:52', '2026-07-28 22:04:01'),
+(9, 'ss', 'sses', 'default.jpg', 'sses@gmail.com', 'sses', '$2y$10$Cine16phVFmoVyneWrpE/OUZmdjlO8KT1ebKm3dKwHCfl0axzF6RW', 'Cashier', 1, 'approved', 1, '2026-10-05 21:44:26', '2026-10-05 20:30:26'),
+(10, 'David', 'Miller', 'default.jpg', 'david.miller@store.com', 'david_m', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Cashier', 0, 'approved', 1, '2026-10-05 21:00:00', '2026-10-05 08:00:00'),
+(11, 'Elena', 'Rostova', 'default.jpg', 'elena.r@store.com', 'elena_r', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Custodian', 1, 'pending', NULL, NULL, '2026-10-05 21:15:00'),
+(12, 'Franklin', 'Clinton', 'default.jpg', 'franklin@store.com', 'frank_c', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Cashier', 1, 'pending', NULL, NULL, '2026-10-05 21:20:00'),
+(13, 'Grace', 'Hopper', 'default.jpg', 'grace.h@store.com', 'grace_h', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Admin', 0, 'approved', 1, '2026-10-05 21:30:00', '2026-10-05 09:12:00'),
+(14, 'Henry', 'Cavill', 'default.jpg', 'henry@store.com', 'henry_c', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 1, 'approved', 1, '2026-10-05 21:40:00', '2026-10-05 10:00:00'),
+(15, 'Ivy', 'Watson', 'default.jpg', 'ivy.w@store.com', 'ivy_w', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Cashier', 1, 'rejected', 1, '2026-10-05 21:45:00', '2026-10-05 11:30:00'),
+(16, 'James', 'Smith', 'default.jpg', 'james.s@store.com', 'james_s', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Custodian', 0, 'approved', 1, '2026-10-05 21:50:00', '2026-10-05 12:00:00'),
+(17, 'Karen', 'Gillan', 'default.jpg', 'karen.g@store.com', 'karen_g', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 1, 'pending', NULL, NULL, '2026-10-05 22:00:00'),
+(18, 'Leo', 'Messi', 'default.jpg', 'leo.m@store.com', 'leo_m', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Cashier', 0, 'approved', 1, '2026-10-05 22:05:00', '2026-10-05 14:15:00'),
+(19, 'Mia', 'Khalil', 'default.jpg', 'mia.k@store.com', 'mia_k', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Custodian', 1, 'approved', 1, '2026-10-05 22:10:00', '2026-10-05 15:00:00'),
+(20, 'Nathan', 'Drake', 'default.jpg', 'nathan.d@store.com', 'nate_d', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Cashier', 1, 'pending', NULL, NULL, '2026-10-05 22:15:00'),
+(21, 'Olivia', 'Rodrigo', 'default.jpg', 'olivia.r@store.com', 'olivia_r', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 0, 'approved', 1, '2026-10-05 22:20:00', '2026-10-05 16:45:00'),
+(22, 'Peter', 'Parker', 'default.jpg', 'peter.p@store.com', 'spidey', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Custodian', 0, 'rejected', 1, '2026-10-05 22:25:00', '2026-10-05 17:00:00'),
+(23, 'Quinn', 'Harley', 'default.jpg', 'quinn.h@store.com', 'quinn_h', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Cashier', 1, 'pending', NULL, NULL, '2026-10-05 22:30:00'),
+(24, 'Ryan', 'Reynolds', 'default.jpg', 'ryan.r@store.com', 'deadpool', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 0, 'approved', 1, '2026-10-05 22:35:00', '2026-10-05 18:20:00'),
+(25, 'Sophia', 'Loren', 'default.jpg', 'sophia.l@store.com', 'sophia_l', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Custodian', 0, 'approved', 1, '2026-10-05 22:40:00', '2026-10-05 19:10:00'),
+(26, 'Thomas', 'Shelby', 'default.jpg', 'tommy.s@store.com', 'by_order_of', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Admin', 0, 'approved', 1, '2026-10-05 22:42:00', '2026-10-05 19:30:00'),
+(27, 'Uma', 'Thurman', 'default.jpg', 'uma.t@store.com', 'beatrix', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Cashier', 1, 'pending', NULL, NULL, '2026-10-05 22:45:00'),
+(28, 'Victor', 'Von-Doom', 'default.jpg', 'victor.d@store.com', 'dr_doom', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Manager', 1, 'rejected', 1, '2026-10-05 22:50:00', '2026-10-05 20:02:00'),
+(29, 'Wendy', 'Darling', 'default.jpg', 'wendy.d@store.com', 'wendy_d', '$2a$12$ydSVh6akdiwcT6UVNRKlp.cCj0Fo0blsHxH5Lrscje7VKMQ75D6Pa', 'Custodian', 1, 'approved', 1, '2026-10-05 22:55:00', '2026-10-05 20:15:00');
 
 --
 -- Indexes for dumped tables
@@ -435,7 +492,9 @@ ALTER TABLE `transactions`
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `email` (`email`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `username` (`username`),
+  ADD KEY `idx_users_approval_status` (`approval_status`),
+  ADD KEY `fk_users_approved_by` (`approved_by`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -445,7 +504,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_logs`
 --
 ALTER TABLE `audit_logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
 
 --
 -- AUTO_INCREMENT for table `deliveries`
@@ -499,7 +558,7 @@ ALTER TABLE `transactions`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- Constraints for dumped tables
@@ -556,6 +615,12 @@ ALTER TABLE `supplier_products`
 --
 ALTER TABLE `transactions`
   ADD CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`cashier_id`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `fk_users_approved_by` FOREIGN KEY (`approved_by`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

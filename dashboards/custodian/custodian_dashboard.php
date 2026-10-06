@@ -21,41 +21,35 @@ requireRole(['Custodian']); // Only allow users with the 'custodian' role
 
     <!-- Main Section App Window -->
     <main>
-        <header>
-            <h2><?php 
-
-            $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
-            // echo "page is: " . $page; 
-            if ($page == 'dashboard') {
-                echo 'Order Fulfillment Center';
-            } else if ($page == 'deliveries') {  
-                echo 'Stock Deliveries';
-            } else if ($page == 'stock-count') {  
-                echo 'Inventory Check';
-            } else if ($page == 'labels') {  
-                echo 'Generate Labels';
-            }else {echo ' 404: Module not found ';
-            }
-            ?> </h2>
-        </header>
+        
 
         <div class="content">
-            <div class="content">
             <?php
-            // Get the page from the URL, default to 'dashboard'
-            $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+            // 1. Define allowed modules explicitly to prevent path traversal / LFI
+            $allowed_pages = [
+                'dashboard',
+                'deliveries',
+                'stock-count',
+                'labels'
+            ];
 
-            // Create the path to the module file
-            $module_path = "modules/" . $page . ".php";
+            // 2. Fetch parameter and fallback safely if it's empty or invalid
+            $page = isset($_GET['page']) ? $_GET['page'] : 'users';
 
-            // Security check: only include if file exists
-            if (file_exists($module_path)) {
-                include($module_path);
+            if (in_array($page, $allowed_pages)) {
+                $module_path = "modules/" . $page . ".php";
+                
+                if (file_exists($module_path)) {
+                    include($module_path);
+                } else {
+                    echo "<div class='alert alert-danger'>Module file missing.</div>";
+                }
             } else {
-                echo "";
+                // If an attacker tries '?page=../../etc/passwd', they get caught here
+                echo "<div class='alert alert-warning'>Access Denied: Invalid module target.</div>";
             }
             ?>
-
+        </div>
 
     
             <script src="../../js/getSupplier.js"></script>

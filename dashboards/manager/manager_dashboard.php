@@ -103,43 +103,41 @@ $user = $user_result->fetch_assoc();
     <!-- Main Section App Window -->
     <main>
         <header>
-            <h2><?php
-
-                $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
-                // echo "page is: " . $page; 
-                if ($page == 'dashboard') {
-                    echo 'Overview Dashboard';
-                } else if ($page == 'products') {
-                    echo 'Comprehensive Stock Master List';
-                } else if ($page == 'orders') {
-                    echo 'Procurement & Purchase Orders';
-                } else if ($page == 'purchase') {
-                    echo 'Draft New Bulk Procurement Order';
-                } else if ($page == 'deliveries') {
-                    echo 'Logistics & Delivery Pipeline Status';
-                } else {
-                    echo ' 404: Module not found ';
-                }
-                ?> </h2>
             <div class="user-profile">
             </div>
         </header>
 
         <div class="content">
             <?php
-            // Get the page from the URL, default to 'dashboard'
-            $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+            // 1. Define allowed modules explicitly to prevent path traversal / LFI
+            $allowed_pages = [
+                'dashboard',
+                'deliveries',
+                'stock-count',
+                'labels',
+                'products',
+                'orders',
+                'purchase',
+                'reports'
+            ];
 
-            // Create the path to the module file
-            $module_path = "modules/" . $page . ".php";
+            // 2. Fetch parameter and fallback safely if it's empty or invalid
+            $page = isset($_GET['page']) ? $_GET['page'] : 'users';
 
-            // Security check: only include if file exists
-            if (file_exists($module_path)) {
-                include($module_path);
+            if (in_array($page, $allowed_pages)) {
+                $module_path = "modules/" . $page . ".php";
+                
+                if (file_exists($module_path)) {
+                    include($module_path);
+                } else {
+                    echo "<div class='alert alert-danger'>Module file missing.</div>";
+                }
             } else {
-                echo "";
+                // If an attacker tries '?page=../../etc/passwd', they get caught here
+                echo "<div class='alert alert-warning'>Access Denied: Invalid module target.</div>";
             }
             ?>
+        </div>
 
 
 
